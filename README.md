@@ -198,32 +198,6 @@ Available scenarios include:
 * GitHub
 
 ---
-
-## Design Philosophy
-
-Sentinel follows a modern enterprise security aesthetic inspired by industry-leading platforms such as:
-
-* IBM Security
-* Microsoft Defender
-* CrowdStrike Falcon
-* Splunk Enterprise Security
-* Elastic Security
-
-### Color Palette
-
-| Purpose    | Color     |
-| ---------- | --------- |
-| Background | `#09090B` |
-| Cards      | `#121316` |
-| Primary    | `#3B82F6` |
-| Danger     | `#EF4444` |
-| Success    | `#10B981` |
-| Warning    | `#FACC15` |
-| Purple     | `#8B5CF6` |
-| Cyan       | `#06B6D4` |
-
----
-
 ## Educational Objectives
 
 Sentinel aims to:

@@ -1,0 +1,45 @@
+# ===========================
+# Sentinel — .gitignore
+# ===========================
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Node (if used later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Build output (if added later)
+/dist
+/build
+/.cache
+
+# Temp files
+*.tmp
+*.temp
+
+mycredentials.txt

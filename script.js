@@ -1,11 +1,13 @@
 /* ===========================
-   script.js — CyberSim Login
+   script.js — Sentinel Login
    =========================== */
 
+const API_BASE = 'http://localhost:5000';
+
 // ── Password toggle ──────────────────────────────────────────────
-const toggleBtn  = document.getElementById('togglePw');
-const pwInput    = document.getElementById('password');
-const eyeIcon    = document.getElementById('eyeIcon');
+const toggleBtn = document.getElementById('togglePw');
+const pwInput   = document.getElementById('password');
+const eyeIcon   = document.getElementById('eyeIcon');
 
 const EYE_OPEN = `
   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -23,75 +25,131 @@ const EYE_CLOSED = `
 let pwVisible = false;
 
 toggleBtn.addEventListener('click', () => {
-  pwVisible = !pwVisible;
-  pwInput.type    = pwVisible ? 'text' : 'password';
-  eyeIcon.innerHTML = pwVisible ? EYE_CLOSED : EYE_OPEN;
+  pwVisible          = !pwVisible;
+  pwInput.type       = pwVisible ? 'text' : 'password';
+  eyeIcon.innerHTML  = pwVisible ? EYE_CLOSED : EYE_OPEN;
 });
 
 
-// ── Remember me checkbox ─────────────────────────────────────────
+// ── Remember me ──────────────────────────────────────────────────
 const rememberCheckbox = document.getElementById('rememberMe');
+
 rememberCheckbox.addEventListener('change', () => {
-  // Persist preference
   localStorage.setItem('rememberMe', rememberCheckbox.checked);
 });
 
-// Restore on load
 const savedRemember = localStorage.getItem('rememberMe');
 if (savedRemember !== null) {
   rememberCheckbox.checked = savedRemember === 'true';
 }
 
+// Pre-fill email if remembered
+const savedEmail = localStorage.getItem('savedEmail');
+if (savedEmail) {
+  document.getElementById('email').value = savedEmail;
+}
 
-// ── Form submission ──────────────────────────────────────────────
+
+// ── Form submission — hits /auth/login ───────────────────────────
 const loginForm = document.getElementById('loginForm');
+const btn       = loginForm.querySelector('.btn-primary');
 
-loginForm.addEventListener('submit', (e) => {
+const BTN_DEFAULT = `Sign In to Dashboard
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/>
+    <polyline points="12 5 19 12 12 19"/>
+  </svg>`;
+
+loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const email    = document.getElementById('email').value.trim();
   const password = pwInput.value;
 
-  // Simple validation
+  // Client-side validation
   if (!email || !validateEmail(email)) {
     shakeInput('email');
+    showToast('Please enter a valid email address.', 'error');
     return;
   }
 
   if (!password || password.length < 6) {
     shakeInput('password');
+    showToast('Password must be at least 6 characters.', 'error');
     return;
   }
 
-  // Simulate loading state
-  const btn = loginForm.querySelector('.btn-primary');
-  btn.disabled    = true;
-  btn.textContent = 'Signing in…';
+  // Loading state
+  btn.disabled  = true;
+  btn.innerHTML = 'Signing in…';
 
-  setTimeout(() => {
-    btn.disabled      = false;
-    btn.innerHTML     = `Sign In to Dashboard
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="5" y1="12" x2="19" y2="12"/>
-        <polyline points="12 5 19 12 12 19"/>
-      </svg>`;
-    // In a real app, redirect or show dashboard here
-    showToast('Welcome back! Loading dashboard…');
-  }, 1400);
+  try {
+    const response = await fetch(`${API_BASE}/auth/login`, {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Save JWT token
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Save email if remember me is checked
+      if (rememberCheckbox.checked) {
+        localStorage.setItem('savedEmail', email);
+      } else {
+        localStorage.removeItem('savedEmail');
+      }
+
+      showToast(`Welcome back, ${data.user.name}! Loading dashboard…`, 'success');
+
+      // Redirect to dashboard after short delay
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 1200);
+
+    } else {
+      // Server returned an error
+      showToast(data.error || 'Login failed. Please try again.', 'error');
+      btn.disabled  = false;
+      btn.innerHTML = BTN_DEFAULT;
+    }
+
+  } catch (err) {
+    // Network/server not running
+    showToast('Cannot connect to server. Is it running?', 'error');
+    btn.disabled  = false;
+    btn.innerHTML = BTN_DEFAULT;
+  }
 });
 
 
-// ── Guest button ─────────────────────────────────────────────────
-document.getElementById('guestBtn').addEventListener('click', () => {
-  showToast('Continuing as guest…');
+// ── Guest button — hits /auth/guest ─────────────────────────────
+document.getElementById('guestBtn').addEventListener('click', async () => {
+  try {
+    const response = await fetch(`${API_BASE}/auth/guest`, { method: 'POST' });
+    const data     = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      showToast('Continuing as guest…', 'success');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+    }
+  } catch (err) {
+    showToast('Cannot connect to server.', 'error');
+  }
 });
 
 
 // ── Forgot Password ──────────────────────────────────────────────
 document.querySelector('.forgot-link').addEventListener('click', (e) => {
   e.preventDefault();
-  showToast('Password reset link will be sent to your email.');
+  showToast('Password reset — coming soon!', 'info');
 });
 
 
@@ -102,9 +160,9 @@ function validateEmail(email) {
 
 function shakeInput(id) {
   const el = document.getElementById(id).closest('.input-group');
-  el.style.animation = 'none';
-  el.offsetHeight; // reflow
-  el.style.animation = 'shake 0.35s ease';
+  el.style.animation   = 'none';
+  el.offsetHeight;
+  el.style.animation   = 'shake 0.35s ease';
   el.style.borderColor = 'rgba(239,68,68,0.6)';
   setTimeout(() => {
     el.style.borderColor = '';
@@ -112,16 +170,22 @@ function shakeInput(id) {
   }, 1200);
 }
 
-function showToast(msg) {
-  // Remove existing toasts
+// Toast — supports success / error / info types
+function showToast(msg, type = 'info') {
   document.querySelectorAll('.toast').forEach(t => t.remove());
 
-  const toast = document.createElement('div');
+  const colors = {
+    success: '#22c55e',
+    error  : '#ef4444',
+    info   : '#3b82f6'
+  };
+
+  const toast       = document.createElement('div');
   toast.className   = 'toast';
   toast.textContent = msg;
+  toast.style.borderColor = colors[type] || colors.info;
   document.body.appendChild(toast);
 
-  // Animate in
   requestAnimationFrame(() => toast.classList.add('toast-visible'));
 
   setTimeout(() => {
@@ -131,8 +195,8 @@ function showToast(msg) {
 }
 
 
-// ── Inject dynamic styles ─────────────────────────────────────────
-const style = document.createElement('style');
+// ── Dynamic styles ────────────────────────────────────────────────
+const style       = document.createElement('style');
 style.textContent = `
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
@@ -171,22 +235,20 @@ document.head.appendChild(style);
 
 // ── Animated logs counter ─────────────────────────────────────────
 function animateCounter(el, target, duration = 2000) {
-  const start   = 0;
   const startTs = performance.now();
   const fmt     = n => n.toLocaleString();
 
   function step(ts) {
     const elapsed  = ts - startTs;
     const progress = Math.min(elapsed / duration, 1);
-    const ease     = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-    el.textContent = fmt(Math.round(start + (target - start) * ease));
+    const ease     = 1 - Math.pow(1 - progress, 3);
+    el.textContent = fmt(Math.round(target * ease));
     if (progress < 1) requestAnimationFrame(step);
   }
 
   requestAnimationFrame(step);
 }
 
-// Run counter animation after a short delay
 const logsEl = document.getElementById('logsCount');
 if (logsEl) {
   setTimeout(() => animateCounter(logsEl, 18392, 2000), 600);

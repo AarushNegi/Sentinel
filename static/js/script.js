@@ -2,7 +2,7 @@
    script.js — Sentinel Login
    =========================== */
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = window.location.origin;
 
 // ── Password toggle ──────────────────────────────────────────────
 const toggleBtn = document.getElementById('togglePw');
@@ -109,7 +109,7 @@ loginForm.addEventListener('submit', async (e) => {
 
       // Redirect to dashboard after short delay
       setTimeout(() => {
-        window.location.href = 'dashboard.html';
+        window.location.href = '/dashboard';
       }, 1200);
 
     } else {
@@ -138,7 +138,7 @@ document.getElementById('guestBtn').addEventListener('click', async () => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       showToast('Continuing as guest…', 'success');
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+      setTimeout(() => { window.location.href = '/dashboard'; }, 1200);
     }
   } catch (err) {
     showToast('Cannot connect to server.', 'error');

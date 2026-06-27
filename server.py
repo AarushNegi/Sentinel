@@ -2,7 +2,7 @@
 # Sentinel — server.py
 # ===========================
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
@@ -16,22 +16,43 @@ load_dotenv()
 
 # ── App Setup ────────────────────────────────────────────────────
 app = Flask(__name__)
-CORS(app)  # Allow frontend to talk to backend
+CORS(app)
 
 # ── MongoDB Config ────────────────────────────────────────────────
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
 mongo = PyMongo(app)
 
 # ── JWT Config ────────────────────────────────────────────────────
-app.config["JWT_SECRET_KEY"]       = os.getenv("JWT_SECRET")
+app.config["JWT_SECRET_KEY"]           = os.getenv("JWT_SECRET")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
 jwt = JWTManager(app)
+
+
+# ================================================================
+#  PAGE ROUTES
+# ================================================================
+
+@app.route('/')
+def home():
+    return render_template('register.html')
+
+@app.route('/login')
+def login_page():
+    return render_template('index.html')
+
+@app.route('/register')
+def register_page():
+    return render_template('register.html')
+
+@app.route('/dashboard')
+def dashboard_page():
+    return render_template('dashboard.html')
+
 
 # ================================================================
 #  AUTH ROUTES
 # ================================================================
 
-# ── Register ─────────────────────────────────────────────────────
 @app.route("/auth/register", methods=["POST"])
 def register():
     data     = request.get_json()
@@ -39,19 +60,15 @@ def register():
     password = data.get("password", "")
     name     = data.get("name", "").strip()
 
-    # Validation
     if not email or not password or not name:
         return jsonify({"error": "All fields are required"}), 400
 
-    # Check if user already exists
     existing = mongo.db.users.find_one({"email": email})
     if existing:
         return jsonify({"error": "Email already registered"}), 409
 
-    # Hash password
     hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
-    # Save to MongoDB
     mongo.db.users.insert_one({
         "name"    : name,
         "email"   : email,
@@ -62,27 +79,22 @@ def register():
     return jsonify({"message": "Account created successfully"}), 201
 
 
-# ── Login ─────────────────────────────────────────────────────────
 @app.route("/auth/login", methods=["POST"])
 def login():
     data     = request.get_json()
     email    = data.get("email", "").strip().lower()
     password = data.get("password", "")
 
-    # Validation
     if not email or not password:
         return jsonify({"error": "Email and password are required"}), 400
 
-    # Find user
     user = mongo.db.users.find_one({"email": email})
     if not user:
         return jsonify({"error": "Invalid email or password"}), 401
 
-    # Check password
     if not bcrypt.checkpw(password.encode("utf-8"), user["password"]):
         return jsonify({"error": "Invalid email or password"}), 401
 
-    # Create JWT token
     token = create_access_token(identity=str(user["_id"]))
 
     return jsonify({
@@ -96,18 +108,13 @@ def login():
     }), 200
 
 
-# ── Guest Login ───────────────────────────────────────────────────
 @app.route("/auth/guest", methods=["POST"])
 def guest_login():
     token = create_access_token(identity="guest")
     return jsonify({
         "message": "Continuing as guest",
         "token"  : token,
-        "user"   : {
-            "name" : "Guest",
-            "email": "",
-            "role" : "guest"
-        }
+        "user"   : {"name": "Guest", "email": "", "role": "guest"}
     }), 200
 
 
@@ -115,15 +122,13 @@ def guest_login():
 #  SIMULATION ROUTES
 # ================================================================
 
-# ── Get all simulations ───────────────────────────────────────────
 @app.route("/simulation", methods=["GET"])
 @jwt_required()
 def get_simulations():
-    sims   = list(mongo.db.simulations.find({}, {"_id": 0}))
+    sims = list(mongo.db.simulations.find({}, {"_id": 0}))
     return jsonify({"simulations": sims}), 200
 
 
-# ── Start a simulation ────────────────────────────────────────────
 @app.route("/simulation/start", methods=["POST"])
 @jwt_required()
 def start_simulation():
@@ -140,25 +145,21 @@ def start_simulation():
     }
 
     result = mongo.db.simulations.insert_one(sim)
-
     return jsonify({
         "message"      : f"{attack_type} simulation started",
         "simulation_id": str(result.inserted_id)
     }), 201
 
 
-# ── Stop a simulation ─────────────────────────────────────────────
 @app.route("/simulation/stop", methods=["POST"])
 @jwt_required()
 def stop_simulation():
-    data  = request.get_json()
+    data   = request.get_json()
     sim_id = data.get("simulation_id")
-
     mongo.db.simulations.update_one(
         {"_id": sim_id},
         {"$set": {"status": "Stopped"}}
     )
-
     return jsonify({"message": "Simulation stopped"}), 200
 
 
@@ -166,7 +167,6 @@ def stop_simulation():
 #  LOGS ROUTES
 # ================================================================
 
-# ── Get all logs ──────────────────────────────────────────────────
 @app.route("/logs", methods=["GET"])
 @jwt_required()
 def get_logs():
@@ -174,39 +174,32 @@ def get_logs():
     return jsonify({"logs": logs}), 200
 
 
-# ── Add a log ─────────────────────────────────────────────────────
 @app.route("/logs/add", methods=["POST"])
 @jwt_required()
 def add_log():
     data = request.get_json()
-
-    log = {
+    log  = {
         "message" : data.get("message"),
-        "severity": data.get("severity", "INFO"),  # INFO / WARN / ERROR / CRITICAL
+        "severity": data.get("severity", "INFO"),
         "source"  : data.get("source", "System"),
     }
-
     mongo.db.logs.insert_one(log)
     return jsonify({"message": "Log added"}), 201
 
 
 # ================================================================
-#  DASHBOARD STATS ROUTE
+#  DASHBOARD STATS
 # ================================================================
 
 @app.route("/dashboard/stats", methods=["GET"])
 @jwt_required()
 def dashboard_stats():
-    total_logs        = mongo.db.logs.count_documents({})
-    active_sims       = mongo.db.simulations.count_documents({"status": "Running"})
-    total_simulations = mongo.db.simulations.count_documents({})
-
     return jsonify({
-        "total_logs"       : total_logs,
-        "active_simulations": active_sims,
-        "total_simulations" : total_simulations,
-        "threat_level"     : "High",
-        "success_rate"     : 87
+        "total_logs"        : mongo.db.logs.count_documents({}),
+        "active_simulations": mongo.db.simulations.count_documents({"status": "Running"}),
+        "total_simulations" : mongo.db.simulations.count_documents({}),
+        "threat_level"      : "High",
+        "success_rate"      : 87
     }), 200
 
 
@@ -214,13 +207,9 @@ def dashboard_stats():
 #  HEALTH CHECK
 # ================================================================
 
-@app.route("/", methods=["GET"])
+@app.route("/health", methods=["GET"])
 def health_check():
-    return jsonify({
-        "status" : "running",
-        "project": "Sentinel",
-        "version": "1.0.0"
-    }), 200
+    return jsonify({"status": "running", "project": "Sentinel", "version": "1.0.0"}), 200
 
 
 # ================================================================
@@ -228,4 +217,6 @@ def health_check():
 # ================================================================
 
 if __name__ == "__main__":
-    app.run(debug=os.getenv("FLASK_ENV") == "development", port=5000)
+    port  = int(os.getenv("PORT", 5000))
+    debug = os.getenv("FLASK_ENV") == "development"
+    app.run(debug=debug, host="0.0.0.0", port=port)

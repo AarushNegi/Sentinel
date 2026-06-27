@@ -2,7 +2,7 @@
    register.js — Sentinel
    =========================== */
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = window.location.origin;
 
 // ── Password toggle ──────────────────────────────────────────────
 const toggleBtn = document.getElementById('togglePw');
@@ -138,7 +138,7 @@ registerForm.addEventListener('submit', async (e) => {
 
         // Redirect to dashboard
         setTimeout(() => {
-          window.location.href = 'dashboard.html';
+          window.location.href = '/dashboard';
         }, 1200);
       }
 

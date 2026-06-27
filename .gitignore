@@ -38,8 +38,13 @@ package-lock.json
 /build
 /.cache
 
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
 # Temp files
 *.tmp
 *.temp
-
-mycredentials.txt

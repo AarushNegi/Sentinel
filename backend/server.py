@@ -2,7 +2,7 @@
 # Sentinel — server.py
 # ===========================
 
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
@@ -16,7 +16,7 @@ load_dotenv()
 
 # ── App Setup ────────────────────────────────────────────────────
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # ── MongoDB Config ────────────────────────────────────────────────
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
@@ -29,31 +29,10 @@ jwt = JWTManager(app)
 
 
 # ================================================================
-#  PAGE ROUTES
-# ================================================================
-
-@app.route('/')
-def home():
-    return render_template('register.html')
-
-@app.route('/login')
-def login_page():
-    return render_template('index.html')
-
-@app.route('/register')
-def register_page():
-    return render_template('register.html')
-
-@app.route('/dashboard')
-def dashboard_page():
-    return render_template('dashboard.html')
-
-
-# ================================================================
 #  AUTH ROUTES
 # ================================================================
 
-@app.route("/auth/register", methods=["POST"])
+@app.route("/api/auth/register", methods=["POST"])
 def register():
     data     = request.get_json()
     email    = data.get("email", "").strip().lower()
@@ -79,7 +58,7 @@ def register():
     return jsonify({"message": "Account created successfully"}), 201
 
 
-@app.route("/auth/login", methods=["POST"])
+@app.route("/api/auth/login", methods=["POST"])
 def login():
     data     = request.get_json()
     email    = data.get("email", "").strip().lower()
@@ -108,7 +87,7 @@ def login():
     }), 200
 
 
-@app.route("/auth/guest", methods=["POST"])
+@app.route("/api/auth/guest", methods=["POST"])
 def guest_login():
     token = create_access_token(identity="guest")
     return jsonify({
@@ -122,14 +101,14 @@ def guest_login():
 #  SIMULATION ROUTES
 # ================================================================
 
-@app.route("/simulation", methods=["GET"])
+@app.route("/api/simulation", methods=["GET"])
 @jwt_required()
 def get_simulations():
     sims = list(mongo.db.simulations.find({}, {"_id": 0}))
     return jsonify({"simulations": sims}), 200
 
 
-@app.route("/simulation/start", methods=["POST"])
+@app.route("/api/simulation/start", methods=["POST"])
 @jwt_required()
 def start_simulation():
     data        = request.get_json()
@@ -151,7 +130,7 @@ def start_simulation():
     }), 201
 
 
-@app.route("/simulation/stop", methods=["POST"])
+@app.route("/api/simulation/stop", methods=["POST"])
 @jwt_required()
 def stop_simulation():
     data   = request.get_json()
@@ -167,14 +146,14 @@ def stop_simulation():
 #  LOGS ROUTES
 # ================================================================
 
-@app.route("/logs", methods=["GET"])
+@app.route("/api/logs", methods=["GET"])
 @jwt_required()
 def get_logs():
     logs = list(mongo.db.logs.find({}, {"_id": 0}))
     return jsonify({"logs": logs}), 200
 
 
-@app.route("/logs/add", methods=["POST"])
+@app.route("/api/logs/add", methods=["POST"])
 @jwt_required()
 def add_log():
     data = request.get_json()
@@ -191,7 +170,7 @@ def add_log():
 #  DASHBOARD STATS
 # ================================================================
 
-@app.route("/dashboard/stats", methods=["GET"])
+@app.route("/api/dashboard/stats", methods=["GET"])
 @jwt_required()
 def dashboard_stats():
     return jsonify({
@@ -207,7 +186,7 @@ def dashboard_stats():
 #  HEALTH CHECK
 # ================================================================
 
-@app.route("/health", methods=["GET"])
+@app.route("/api/health", methods=["GET"])
 def health_check():
     return jsonify({"status": "running", "project": "Sentinel", "version": "1.0.0"}), 200
 

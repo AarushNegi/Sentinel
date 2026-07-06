@@ -1,0 +1,126 @@
+/* pages/ModeSelect.css */
+
+.ms-page {
+  min-height: 100vh;
+  background: #0a0a0f;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.ms-intro {
+  text-align: center;
+  padding: 64px 24px 40px;
+}
+
+.ms-eyebrow {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+  display: block;
+  margin-bottom: 18px;
+}
+
+.ms-heading {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0 0 16px;
+}
+
+.ms-desc {
+  color: #8b93a1;
+  font-size: 15px;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.ms-split {
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+
+.ms-panel {
+  flex: 1;
+  background: #12121a;
+  border: none;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 60px 64px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+  font-family: inherit;
+}
+
+.ms-panel:hover { background: #171721; }
+
+.ms-panel h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 12px 0 14px;
+}
+
+.ms-panel p {
+  color: #8b93a1;
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 340px;
+  margin: 0 0 24px;
+}
+
+.ms-tag {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+.ms-tag-red  { color: #ef4444; border-color: #ef4444; background: rgba(239,68,68,0.08); }
+.ms-tag-blue { color: #3b82f6; border-color: #3b82f6; background: rgba(59,130,246,0.08); }
+
+.ms-cta {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ms-panel-red .ms-cta  { color: #ef4444; }
+.ms-panel-blue .ms-cta { color: #3b82f6; }
+
+.ms-seam {
+  width: 2px;
+  background: linear-gradient(180deg, #ef4444, #3b82f6);
+  position: relative;
+  overflow: hidden;
+}
+
+.ms-seam::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, transparent, #fff, transparent);
+  animation: ms-scan 3s linear infinite;
+}
+
+@keyframes ms-scan {
+  0%   { top: -100%; }
+  100% { top: 100%; }
+}
+
+@media (max-width: 768px) {
+  .ms-split { flex-direction: column; }
+  .ms-seam { width: 100%; height: 2px; background: linear-gradient(90deg, #ef4444, #3b82f6); }
+}

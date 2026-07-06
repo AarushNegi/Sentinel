@@ -1,0 +1,141 @@
+/* pages/Guide.css */
+
+.gd-page {
+  min-height: 100vh;
+  background: #0a0a0f;
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 56px 24px 100px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.gd-loading, .gd-error {
+  text-align: center;
+  color: #6b7280;
+  padding-top: 100px;
+}
+
+.gd-header { margin-bottom: 40px; }
+
+.gd-eyebrow {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 14px;
+}
+
+.gd-red .gd-eyebrow  { color: #ef4444; }
+.gd-blue .gd-eyebrow { color: #3b82f6; }
+
+.gd-header h1 {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.gd-section {
+  margin-bottom: 36px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 24px;
+}
+
+.gd-section h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+  margin: 0 0 14px;
+}
+
+.gd-section > p {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: #d1d5db;
+  margin: 0;
+}
+
+.gd-list, .gd-tips {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.gd-list li, .gd-tips li {
+  font-size: 14px;
+  color: #d1d5db;
+  padding: 8px 0 8px 20px;
+  position: relative;
+  line-height: 1.6;
+}
+
+.gd-list li::before, .gd-tips li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+
+.gd-red .gd-list li::before, .gd-red .gd-tips li::before   { color: #ef4444; }
+.gd-blue .gd-list li::before, .gd-blue .gd-tips li::before { color: #3b82f6; }
+
+.gd-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gd-stage-row {
+  display: flex;
+  gap: 16px;
+}
+
+.gd-stage-num {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid;
+}
+
+.gd-red .gd-stage-num  { color: #ef4444; border-color: #ef4444; }
+.gd-blue .gd-stage-num { color: #3b82f6; border-color: #3b82f6; }
+
+.gd-stage-row h3 {
+  font-size: 14.5px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.gd-stage-row p {
+  font-size: 13.5px;
+  color: #9ca3af;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.gd-start {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  color: #0a0a0f;
+}
+
+.gd-red .gd-start  { background: #ef4444; }
+.gd-blue .gd-start { background: #3b82f6; }

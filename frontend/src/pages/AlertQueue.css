@@ -1,0 +1,224 @@
+/* pages/AlertQueue.css */
+
+.aq-wrapper {
+  background: #0a0a0f;
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 24px 32px;
+  min-height: 100vh;
+}
+
+.aq-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.aq-search {
+  background: #12121a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-size: 13px;
+  width: 280px;
+  font-family: inherit;
+}
+
+.aq-search::placeholder { color: #6b7280; }
+
+.aq-count {
+  font-size: 12.5px;
+  color: #6b7280;
+}
+
+.aq-table {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.aq-header-row {
+  display: grid;
+  grid-template-columns: 60px 2fr 90px 100px 160px 140px 100px;
+  padding: 12px 18px;
+  background: #12121a;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.aq-row-group {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.aq-row-group:last-child { border-bottom: none; }
+
+.aq-row {
+  display: grid;
+  grid-template-columns: 60px 2fr 90px 100px 160px 140px 100px;
+  padding: 16px 18px;
+  align-items: center;
+  cursor: pointer;
+  font-size: 13.5px;
+  transition: background 0.15s;
+}
+
+.aq-row:hover { background: rgba(255,255,255,0.02); }
+
+.aq-id { color: #6b7280; }
+
+.aq-rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 12px;
+}
+
+.aq-caret {
+  font-size: 11px;
+  color: #6b7280;
+  transition: transform 0.2s;
+}
+
+.aq-caret.open { transform: rotate(180deg); }
+
+.aq-date { color: #9ca3af; font-size: 12.5px; }
+
+.aq-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.aq-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6b7280;
+}
+
+.aq-status-investigating .aq-status-dot { background: #eab308; }
+.aq-status-closed .aq-status-dot { background: #22c55e; }
+
+.aq-assign-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 11.5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.aq-assign-btn:hover { background: rgba(255,255,255,0.1); }
+
+.aq-verdict-tag {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.aq-verdict-tag.correct { background: rgba(34,197,94,0.15); color: #22c55e; }
+.aq-verdict-tag.incorrect { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+.aq-details {
+  padding: 4px 18px 24px 78px;
+  background: rgba(255,255,255,0.015);
+}
+
+.aq-desc {
+  font-size: 13.5px;
+  color: #d1d5db;
+  line-height: 1.7;
+  margin: 0 0 16px;
+  max-width: 640px;
+}
+
+.aq-field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 32px;
+  margin-bottom: 20px;
+}
+
+.aq-field-row {
+  display: flex;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.aq-field-key {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.aq-field-value {
+  color: #d1d5db;
+  word-break: break-word;
+}
+
+.aq-classify {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.aq-classify-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-right: 4px;
+}
+
+.aq-classify-btn {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid;
+  cursor: pointer;
+  background: transparent;
+  font-family: inherit;
+}
+
+.aq-classify-true {
+  color: #22c55e;
+  border-color: #22c55e;
+}
+.aq-classify-true:hover { background: rgba(34,197,94,0.1); }
+
+.aq-classify-false {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+.aq-classify-false:hover { background: rgba(239,68,68,0.1); }
+
+.aq-result {
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.aq-result.correct {
+  background: rgba(34,197,94,0.08);
+  color: #22c55e;
+}
+
+.aq-result.incorrect {
+  background: rgba(239,68,68,0.08);
+  color: #ef4444;
+}

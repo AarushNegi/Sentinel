@@ -136,6 +136,14 @@
   cursor: pointer;
   color: #0a0a0f;
 }
+.gd-page {
+  position: relative;
+  overflow: hidden;
+}
 
+.gd-header, .gd-section, .gd-start {
+  position: relative;
+  z-index: 1;
+}
 .gd-red .gd-start  { background: #ef4444; }
 .gd-blue .gd-start { background: #3b82f6; }

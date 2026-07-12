@@ -222,3 +222,12 @@
   background: rgba(239,68,68,0.08);
   color: #ef4444;
 }
+.aq-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.aq-toolbar, .aq-table {
+  position: relative;
+  z-index: 1;
+}

@@ -124,3 +124,12 @@
   .ms-split { flex-direction: column; }
   .ms-seam { width: 100%; height: 2px; background: linear-gradient(90deg, #ef4444, #3b82f6); }
 }
+.ms-page {
+  position: relative;
+  overflow: hidden;
+}
+
+.ms-intro, .ms-split {
+  position: relative;
+  z-index: 1;
+}

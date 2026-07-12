@@ -1,9 +1,30 @@
+// pages/Dashboard.jsx
 import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import NetworkBackground from '../components/NetworkBackground'
+import './Dashboard.css'
+
+function useCountUp(target, duration = 1200) {
+  const [value, setValue] = useState(0)
+  useEffect(() => {
+    let start = null
+    const step = (ts) => {
+      if (!start) start = ts
+      const progress = Math.min((ts - start) / duration, 1)
+      setValue(Math.floor(progress * target))
+      if (progress < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }, [target, duration])
+  return value
+}
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const simsCount = useCountUp(0)
+  const streakCount = useCountUp(0)
 
   const handleLogout = () => {
     logout()
@@ -11,64 +32,55 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#0a0a0f',
-      color: '#fff',
-      fontFamily: 'Inter, sans-serif',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '16px',
-      textAlign: 'center',
-      padding: '40px'
-    }}>
-      <div style={{
-        background: 'rgba(34,197,94,0.1)',
-        border: '1px solid rgba(34,197,94,0.3)',
-        borderRadius: '99px',
-        padding: '6px 18px',
-        fontSize: '13px',
-        color: '#22c55e'
-      }}>
-        ✅ Logged In Successfully
-      </div>
+    <div className="db-page">
+     <NetworkBackground variant="blue" />
 
-      <h1 style={{ fontSize: '48px', fontWeight: 800, margin: 0 }}>
-        Welcome to <span style={{ color: '#3b82f6' }}>Sentinel</span>
-      </h1>
+      <header className="db-topbar">
+        <span className="db-logo">
+          Sentinel
+          <span className="db-live-dot" />
+        </span>
+        <div className="db-user-pill">
+          <span>{user?.name}</span>
+          <span className="db-role">{user?.role}</span>
+          <button className="db-signout" onClick={handleLogout}>Sign Out</button>
+        </div>
+      </header>
 
-      <p style={{ color: '#6b7280', fontSize: '15px' }}>
-        Dashboard is being built. Stay tuned!
-      </p>
+      <main className="db-main">
+        <h1 className="db-heading">Welcome back, {user?.name}</h1>
+        <p className="db-sub">Pick up where you left off or start a new simulation.</p>
 
-      <div style={{
-        background: '#111118',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: '12px',
-        padding: '20px 32px',
-        fontSize: '14px',
-        color: '#9ca3af'
-      }}>
-        Logged in as: <span style={{ color: '#3b82f6', fontWeight: 600 }}>{user?.name}</span>
-        &nbsp;|&nbsp;
-        Role: <span style={{ color: '#3b82f6', fontWeight: 600 }}>{user?.role}</span>
-      </div>
+        <div className="db-stats">
+          <div className="db-stat-card">
+            <span className="db-stat-num">{simsCount}</span>
+            <span className="db-stat-label">Simulations completed</span>
+          </div>
+          <div className="db-stat-card">
+            <span className="db-stat-num">{streakCount}</span>
+            <span className="db-stat-label">Current streak</span>
+          </div>
+          <div className="db-stat-card">
+            <span className="db-stat-num">—</span>
+            <span className="db-stat-label">Accuracy</span>
+          </div>
+        </div>
 
-      <button onClick={handleLogout} style={{
-        background: 'transparent',
-        border: '1px solid rgba(239,68,68,0.4)',
-        color: '#ef4444',
-        borderRadius: '10px',
-        padding: '10px 24px',
-        fontFamily: 'Inter, sans-serif',
-        fontSize: '13.5px',
-        cursor: 'pointer',
-        marginTop: '8px'
-      }}>
-        Sign Out
-      </button>
+        <button className="db-start-card" onClick={() => navigate('/mode-select')}>
+          <div className="db-start-text">
+            <span className="db-start-label">Start New Simulation</span>
+            <span className="db-start-desc">Choose Red or Blue team and run a live kill chain scenario.</span>
+          </div>
+          <span className="db-start-arrow">→</span>
+        </button>
+
+        <section className="db-activity">
+          <h2>Recent Activity</h2>
+          <div className="db-activity-empty">
+            No simulations yet — start your first one above.
+          </div>
+        </section>
+      </main>
     </div>
   )
 }

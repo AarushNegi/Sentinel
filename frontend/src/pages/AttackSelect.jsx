@@ -1,5 +1,6 @@
 // pages/AttackSelect.jsx
 import { useLocation, useNavigate } from 'react-router-dom'
+import NetworkBackground from '../components/NetworkBackground'
 import './AttackSelect.css'
 
 const ATTACKS = [
@@ -34,6 +35,7 @@ export default function AttackSelect() {
 
   return (
     <div className={`as-page as-${mode}`}>
+      <NetworkBackground variant={mode} />
       <div className="as-header">
         <span className="as-eyebrow">
           {mode === 'red' ? 'RED TEAM // SELECT ATTACK' : 'BLUE TEAM // SELECT SCENARIO'}

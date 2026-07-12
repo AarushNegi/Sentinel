@@ -6,10 +6,9 @@
 flask==3.0.3
 flask-cors==4.0.1
 
-# MongoDB
+# MongoDB — raw client (flask-pymongo dropped due to SSL issues)
 pymongo==4.7.2
-flask-pymongo==2.3.0
-dnspython==2.6.1
+certifi
 
 # Authentication
 flask-jwt-extended==4.6.0
@@ -20,3 +19,7 @@ python-dotenv==1.0.1
 
 # Utilities
 requests==2.31.0
+dnspython==2.6.1
+
+# Production Server
+gunicorn==22.0.0

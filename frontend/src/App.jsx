@@ -5,6 +5,8 @@ import Dashboard from './pages/Dashboard'
 import ModeSelect from './pages/ModeSelect'
 import AttackSelect from './pages/AttackSelect'
 import Guide from './pages/Guide'
+import AlertQueue from './pages/AlertQueue'
+import Simulation from './pages/AlertQueue'
 
 // Protected route — redirects to login if no token
 const ProtectedRoute = ({ children }) => {
@@ -21,6 +23,8 @@ function App() {
       <Route path="/mode-select" element={<ModeSelect />} />
       <Route path="/attack-select" element={<AttackSelect />} />
       <Route path="/guide" element={<Guide />} />
+      <Route path="/alert-queue" element={<AlertQueue />} />
+      <Route path="/simulation" element={<Simulation />} />
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Dashboard />

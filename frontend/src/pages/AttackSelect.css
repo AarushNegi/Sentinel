@@ -86,3 +86,12 @@
 @media (max-width: 768px) {
   .as-grid { grid-template-columns: 1fr; }
 }
+.as-page {
+  position: relative;
+  overflow: hidden;
+}
+
+.as-header, .as-grid {
+  position: relative;
+  z-index: 1;
+}

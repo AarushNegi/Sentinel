@@ -1,6 +1,8 @@
 // pages/AlertQueue.jsx
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import phishingAlerts from '../data/scenarios/phishing-alerts'
+import NetworkBackground from '../components/NetworkBackground'
 import './AlertQueue.css'
 
 const SEVERITY_COLOR = {
@@ -10,6 +12,8 @@ const SEVERITY_COLOR = {
 }
 
 export default function AlertQueue() {
+  const location = useLocation()
+  const mode = location.state?.mode || 'blue'
   const [alerts, setAlerts] = useState(phishingAlerts)
   const [expandedId, setExpandedId] = useState(null)
 
@@ -42,6 +46,7 @@ export default function AlertQueue() {
 
   return (
     <div className="aq-wrapper">
+      <NetworkBackground variant={mode} />
       <div className="aq-toolbar">
         <input className="aq-search" placeholder="Search for an alert" />
         <span className="aq-count">{alerts.length} alerts</span>

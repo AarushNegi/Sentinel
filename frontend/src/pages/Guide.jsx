@@ -1,6 +1,7 @@
 // pages/Guide.jsx
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import NetworkBackground from '../components/NetworkBackground'
 import './Guide.css'
 
 export default function Guide() {
@@ -27,17 +28,24 @@ export default function Guide() {
   if (error) {
     return (
       <div className={`gd-page gd-${mode}`}>
+        <NetworkBackground variant={mode} />
         <p className="gd-error">Couldn't load the guide for this combination.</p>
       </div>
     )
   }
 
   if (!guide) {
-    return <div className={`gd-page gd-${mode}`}><p className="gd-loading">Loading guide…</p></div>
+    return (
+      <div className={`gd-page gd-${mode}`}>
+        <NetworkBackground variant={mode} />
+        <p className="gd-loading">Loading guide…</p>
+      </div>
+    )
   }
 
   return (
     <div className={`gd-page gd-${mode}`}>
+      <NetworkBackground variant={mode} />
       <div className="gd-header">
         <span className="gd-eyebrow">
           {mode === 'red' ? 'RED TEAM BRIEFING' : 'BLUE TEAM BRIEFING'} — {guide.title}

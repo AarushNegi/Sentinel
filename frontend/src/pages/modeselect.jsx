@@ -1,6 +1,7 @@
 // pages/ModeSelect.jsx
 import { useNavigate } from 'react-router-dom'
 import './ModeSelect.css'
+import NetworkBackground from '../components/NetworkBackground'
 
 export default function ModeSelect() {
   const navigate = useNavigate()
@@ -11,6 +12,7 @@ export default function ModeSelect() {
 
   return (
     <div className="ms-page">
+      <NetworkBackground variant="blue" />
       <div className="ms-intro">
         <span className="ms-eyebrow">SENTINEL // KILL CHAIN SIMULATOR</span>
         <h1 className="ms-heading">Learn offense and defense<br />through live simulation</h1>

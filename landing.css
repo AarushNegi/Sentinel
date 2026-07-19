@@ -1,0 +1,82 @@
+@import "tailwindcss" source(none); 
+@source "./";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-red-team: var(--red-team);
+  --color-red-team-glow: var(--red-team-glow);
+  --color-blue-team: var(--blue-team);
+  --color-blue-team-glow: var(--blue-team-glow);
+  --color-cyber-grid: var(--cyber-grid);
+  --color-terminal: var(--terminal);
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.13 0.02 275);
+  --foreground: oklch(0.97 0.01 250);
+  --card: oklch(0.17 0.025 275);
+  --card-foreground: oklch(0.97 0.01 250);
+  --border: oklch(0.28 0.03 275 / 60%);
+  --muted: oklch(0.22 0.02 275);
+  --muted-foreground: oklch(0.68 0.03 260);
+  --red-team: oklch(0.62 0.24 25);
+  --red-team-glow: oklch(0.7 0.22 25);
+  --blue-team: oklch(0.62 0.22 255);
+  --blue-team-glow: oklch(0.72 0.2 255);
+  --cyber-grid: oklch(0.35 0.05 260 / 40%);
+  --terminal: oklch(0.85 0.18 145);
+  --gradient-hero: radial-gradient(1200px 600px at 20% 0%, oklch(0.62 0.24 25 / 0.18), transparent 60%),
+                   radial-gradient(1000px 500px at 80% 20%, oklch(0.62 0.22 255 / 0.18), transparent 60%);
+  --shadow-red: 0 0 40px oklch(0.62 0.24 25 / 0.35), 0 0 8px oklch(0.62 0.24 25 / 0.6);
+  --shadow-blue: 0 0 40px oklch(0.62 0.22 255 / 0.35), 0 0 8px oklch(0.62 0.22 255 / 0.6);
+}
+
+@utility bg-cyber-grid {
+  background-image:
+    linear-gradient(var(--cyber-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cyber-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+@utility text-glow-red { text-shadow: 0 0 20px oklch(0.62 0.24 25 / 0.6), 0 0 40px oklch(0.62 0.24 25 / 0.3); }
+@utility text-glow-blue { text-shadow: 0 0 20px oklch(0.62 0.22 255 / 0.6), 0 0 40px oklch(0.62 0.22 255 / 0.3); }
+@utility shadow-red-glow { box-shadow: var(--shadow-red); }
+@utility shadow-blue-glow { box-shadow: var(--shadow-blue); }
+@utility gradient-red-blue-text {
+  background: linear-gradient(90deg, var(--red-team-glow), oklch(0.95 0.01 250), var(--blue-team-glow));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility hero-bg { background: var(--gradient-hero); }
+
+@keyframes pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
+@keyframes reveal-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+@utility animate-pulse-glow { animation: pulse-glow 2.4s ease-in-out infinite; }
+@utility animate-scanline { animation: scanline 8s linear infinite; }
+@utility animate-reveal { animation: reveal-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@utility reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  &.is-visible { opacity: 1; transform: translateY(0); }
+}

@@ -7,6 +7,7 @@ import AttackSelect from './pages/AttackSelect'
 import Guide from './pages/Guide'
 import AlertQueue from './pages/AlertQueue'
 import Simulation from './pages/AlertQueue'
+import Landing from './pages/Landing'
 
 // Protected route — redirects to login if no token
 const ProtectedRoute = ({ children }) => {
@@ -17,7 +18,7 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <Routes>
-      <Route path="/"          element={<Register />} />
+      <Route path="/"          element={<Landing />} />
       <Route path="/register"  element={<Register />} />
       <Route path="/login"     element={<Login />} />
       <Route path="/mode-select" element={<ModeSelect />} />

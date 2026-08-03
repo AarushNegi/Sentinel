@@ -197,3 +197,73 @@
   color: #6b7280;
   font-size: 13.5px;
 }
+
+/* ── Add this to the bottom of pages/Dashboard.css ── */
+
+.db-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.db-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.db-activity-item:hover {
+  border-color: rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.05);
+}
+
+.db-activity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.db-activity-success { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+.db-activity-failed  { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+
+.db-activity-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.db-activity-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.db-activity-mode {
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.db-activity-sub {
+  font-size: 11.5px;
+  color: #9ca3af;
+}
+
+.db-activity-time {
+  font-size: 11px;
+  color: #6b7280;
+  flex-shrink: 0;
+  white-space: nowrap;
+}

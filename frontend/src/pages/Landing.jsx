@@ -8,6 +8,7 @@ import { useReveal } from '../hooks/useReveal'
 import {
   Shield, Swords, Radar, Bell, Search, Trophy, Target, Terminal, Activity, ArrowRight, ChevronRight, Cpu,
 } from 'lucide-react'
+import logo from '../assets/logo.jpeg'
 
 const killChain = ['RECON', 'WEAPONIZE', 'DELIVER', 'EXPLOIT', 'INSTALL', 'C2', 'ACTIONS']
 
@@ -56,8 +57,8 @@ function Nav({ navigate }) {
   return (
     <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
       <a href="#" className="group flex items-center gap-2.5">
-        <div className="relative flex h-8 w-8 items-center justify-center rounded-md border border-border bg-card">
-          <Shield className="h-4 w-4 text-[color:var(--blue-team-glow)]" />
+        <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-md">
+        <img src={logo} alt="Sentinel logo" className="h-full w-full object-cover" />
         </div>
         <span className="font-mono text-sm uppercase tracking-[0.3em]">
           Sentinel<span className="text-[color:var(--red-team-glow)]">/</span><span className="text-[color:var(--blue-team-glow)]">SOC</span>

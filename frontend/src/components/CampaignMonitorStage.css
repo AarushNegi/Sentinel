@@ -1,0 +1,162 @@
+/* components/CampaignMonitorStage.css */
+
+.cm-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* ── Inbox / email render ── */
+.cm-inbox {
+  background: #0a0a0f;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cm-inbox-topbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cm-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+.cm-inbox-title { margin-left: 8px; font-size: 10.5px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; }
+
+.cm-email { padding: 18px; }
+
+.cm-email-header { display: flex; gap: 12px; margin-bottom: 14px; }
+
+.cm-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cm-sender { font-size: 13px; font-weight: 600; color: #fff; }
+.cm-subject { font-size: 12.5px; color: #9ca3af; margin-top: 2px; }
+
+.cm-email-body { font-size: 12.5px; color: #9ca3af; line-height: 1.7; }
+.cm-email-body p { margin: 0 0 12px 0; }
+
+.cm-cta-btn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: default;
+  margin: 4px 0;
+}
+
+.cm-cta-btn.urgency {
+  background: #ef4444;
+  box-shadow: 0 0 16px rgba(239,68,68,0.35);
+}
+
+.cm-macro-note { font-size: 11px; color: #eab308; margin-top: 8px; }
+
+/* ── Option picker ── */
+.cm-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cm-options-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+
+.cm-option-btn {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #e5e7eb;
+  font-family: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.cm-option-btn:hover:not(:disabled) { border-color: var(--team-color); background: rgba(255,255,255,0.05); }
+.cm-option-btn:disabled { cursor: default; }
+.cm-option-btn.dimmed { opacity: 0.35; }
+
+.cm-option-btn.result-best  { border-color: #22c55e; background: rgba(34,197,94,0.08); }
+.cm-option-btn.result-risky { border-color: #eab308; background: rgba(234,179,8,0.08); }
+.cm-option-btn.result-fail  { border-color: #ef4444; background: rgba(239,68,68,0.08); }
+
+/* ── Reaction simulation ── */
+.cm-reaction { margin-top: 8px; }
+
+.cm-reaction-none { font-size: 11.5px; color: #6b7280; font-style: italic; }
+.cm-reaction-typing { font-size: 11.5px; color: #eab308; margin-top: 8px; }
+
+.cm-capture-box {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.cm-fake-login {
+  background: #fff;
+  color: #111;
+  border-radius: 8px;
+  padding: 12px;
+  font-family: 'Inter', sans-serif;
+}
+
+.cm-fake-login-title { font-size: 11px; font-weight: 700; margin-bottom: 8px; color: #333; }
+
+.cm-fake-field {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.cm-typing { position: relative; }
+.cm-cursor { animation: cm-blink 1s infinite; }
+@keyframes cm-blink { 50% { opacity: 0; } }
+
+.cm-captured {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ef4444;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.cm-captured-icon {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: rgba(239,68,68,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+}
+
+@media (max-width: 700px) {
+  .cm-wrapper { grid-template-columns: 1fr; }
+}

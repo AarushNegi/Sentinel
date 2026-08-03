@@ -21,8 +21,12 @@ export default function Guide() {
       .catch(() => setError(true))
   }, [mode, attack])
 
-  const startSimulation = () => {
-    navigate('/simulation', { state: { mode, attack } })
+ const startSimulation = () => {
+    if (mode === 'blue') {
+      navigate('/soc-simulator', { state: { attack } })
+    } else {
+      navigate('/simulation', { state: { mode, attack } })
+    }
   }
 
   if (error) {

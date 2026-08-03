@@ -6,7 +6,7 @@ from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
 from dotenv import load_dotenv
-from datetime import timedelta
+from datetime import timedelta, datetime
 from pymongo import MongoClient
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -28,7 +28,7 @@ client = MongoClient(
     tls=True,
     tlsAllowInvalidCertificates=True
 )
-db = client["sentinel"]   # ← THIS LINE WAS MISSING
+db = client["sentinel"]
 
 # ── JWT Config ────────────────────────────────────────────────────
 app.config["JWT_SECRET_KEY"]           = os.getenv("JWT_SECRET")
@@ -105,7 +105,7 @@ def guest_login():
 
 
 # ================================================================
-#  SIMULATION ROUTES
+#  LEGACY SIMULATION ROUTES (AlertQueue / demo flow)
 # ================================================================
 
 @app.route("/api/simulation", methods=["GET"])
@@ -115,9 +115,9 @@ def get_simulations():
     return jsonify({"simulations": sims}), 200
 
 
-@app.route("/api/simulation/start", methods=["POST"])
+@app.route("/api/simulation/start-legacy", methods=["POST"])
 @jwt_required()
-def start_simulation():
+def start_simulation_legacy():
     data        = request.get_json()
     attack_type = data.get("attack_type", "Unknown")
     user_id     = get_jwt_identity()
@@ -150,7 +150,67 @@ def stop_simulation():
 
 
 # ================================================================
-#  KILL CHAIN
+#  SIMULATION REPORTS
+# ================================================================
+
+@app.route("/api/simulation/report", methods=["POST"])
+@jwt_required()
+def save_simulation_report():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+
+    report = {
+        "user_id"         : user_id,
+        "mode"             : data.get("mode"),
+        "attack"           : data.get("attack"),
+        "guide_title"      : data.get("guideTitle"),
+        "result"           : data.get("result"),
+        "failed_at_stage"  : data.get("failedAtStage"),
+        "total_stages"     : data.get("totalStages"),
+        "stages_completed" : data.get("stagesCompleted"),
+        "score"            : data.get("score"),
+        "max_score"        : data.get("maxScore"),
+        "duration_seconds" : data.get("durationSeconds"),
+        "choices"          : data.get("choices", []),
+        "log_lines"        : data.get("logLines", []),
+        "created_at"       : datetime.utcnow().isoformat()
+    }
+
+    result = db.reports.insert_one(report)
+    return jsonify({
+        "message"  : "Report saved",
+        "report_id": str(result.inserted_id)
+    }), 201
+
+
+@app.route("/api/simulation/reports", methods=["GET"])
+@jwt_required()
+def get_my_reports():
+    user_id = get_jwt_identity()
+    reports = list(db.reports.find({"user_id": user_id}).sort("created_at", -1))
+    for r in reports:
+        r["_id"] = str(r["_id"])
+    return jsonify({"reports": reports}), 200
+
+
+@app.route("/api/simulation/report/<report_id>", methods=["GET"])
+@jwt_required()
+def get_report(report_id):
+    try:
+        obj_id = ObjectId(report_id)
+    except InvalidId:
+        return jsonify({"error": "Invalid report ID"}), 400
+
+    report = db.reports.find_one({"_id": obj_id})
+    if not report:
+        return jsonify({"error": "Report not found"}), 404
+
+    report["_id"] = str(report["_id"])
+    return jsonify({"report": report}), 200
+
+
+# ================================================================
+#  KILL CHAIN (demo/legacy - kept for compatibility)
 # ================================================================
 
 KILL_CHAIN_STAGES = [
@@ -159,41 +219,13 @@ KILL_CHAIN_STAGES = [
 ]
 
 PHISHING_SEED_STAGES = {
-    "Reconnaissance": {
-        "description": "Attacker gathers employee emails from LinkedIn and the company website to identify targets.",
-        "mitre_id": "TA0043", "timestamp": "09:01",
-        "logs": ["INFO  Recon started", "INFO  3 employee emails harvested"]
-    },
-    "Weaponization": {
-        "description": "Attacker crafts a phishing email impersonating IT support, embedding a malicious login link.",
-        "mitre_id": "TA0001", "timestamp": "09:03",
-        "logs": ["INFO  Phishing template generated", "INFO  Malicious link embedded"]
-    },
-    "Delivery": {
-        "description": "The phishing email is sent to the target's inbox, disguised as an urgent password reset request.",
-        "mitre_id": "T1566.001", "timestamp": "09:06",
-        "logs": ["SUCCESS  Email delivered", "INFO  Spam filter bypassed"]
-    },
-    "Exploitation": {
-        "description": "Victim clicks the link and enters credentials on a fake login page.",
-        "mitre_id": "T1204.001", "timestamp": "09:08",
-        "logs": ["WARNING  Credential reuse detected", "ALERT  Fake login page submitted"]
-    },
-    "Installation": {
-        "description": "Attacker uses stolen credentials to install a lightweight backdoor for persistent access.",
-        "mitre_id": "T1505", "timestamp": "09:10",
-        "logs": ["ALERT  Unauthorized login detected", "CRITICAL  Backdoor installed"]
-    },
-    "Command & Control": {
-        "description": "Backdoor connects to attacker's remote server, establishing a covert command channel.",
-        "mitre_id": "TA0011", "timestamp": "09:14",
-        "logs": ["CRITICAL  Outbound C2 connection established", "WARNING  Unusual traffic pattern detected"]
-    },
-    "Actions on Objectives": {
-        "description": "Attacker exfiltrates sensitive files from the workstation to an external server.",
-        "mitre_id": "TA0010", "timestamp": "09:18",
-        "logs": ["CRITICAL  Sensitive data accessed", "CRITICAL  Data exfiltration in progress"]
-    }
+    "Reconnaissance": {"description": "Attacker gathers employee emails.", "mitre_id": "TA0043", "timestamp": "09:01", "logs": []},
+    "Weaponization": {"description": "Attacker crafts a phishing email.", "mitre_id": "TA0001", "timestamp": "09:03", "logs": []},
+    "Delivery": {"description": "The phishing email is sent.", "mitre_id": "T1566.001", "timestamp": "09:06", "logs": []},
+    "Exploitation": {"description": "Victim clicks the link.", "mitre_id": "T1204.001", "timestamp": "09:08", "logs": []},
+    "Installation": {"description": "Attacker installs a backdoor.", "mitre_id": "T1505", "timestamp": "09:10", "logs": []},
+    "Command & Control": {"description": "Backdoor connects to C2.", "mitre_id": "TA0011", "timestamp": "09:14", "logs": []},
+    "Actions on Objectives": {"description": "Attacker exfiltrates data.", "mitre_id": "TA0010", "timestamp": "09:18", "logs": []}
 }
 
 
@@ -287,13 +319,185 @@ def add_log():
 @app.route("/api/dashboard/stats", methods=["GET"])
 @jwt_required()
 def dashboard_stats():
+    user_id = get_jwt_identity()
     return jsonify({
         "total_logs"        : db.logs.count_documents({}),
         "active_simulations": db.simulations.count_documents({"status": "Running"}),
         "total_simulations" : db.simulations.count_documents({}),
+        "reports_completed" : db.reports.count_documents({"user_id": user_id}),
         "threat_level"      : "High",
         "success_rate"      : 87
     }), 200
+
+
+# ================================================================
+#  SCENARIOS (new backend-driven simulation engine)
+# ================================================================
+
+@app.route("/api/scenarios/<mode>/<attack>", methods=["GET"])
+@jwt_required()
+def get_scenario(mode, attack):
+    scenario = db.scenarios.find_one({"mode": mode, "attack": attack})
+    if not scenario:
+        return jsonify({"error": "Scenario not found"}), 404
+
+    # Strip outcome/feedback/hint from options — client only gets id + text
+    safe_stages = []
+    for stage in scenario["stages"]:
+        safe_options = [
+            {"id": opt["id"], "text": opt["text"]}
+            for opt in stage["challenge"]["options"]
+        ]
+        safe_stages.append({
+            "stageId": stage["stageId"],
+            "name": stage["name"],
+            "narrative": stage["narrative"],
+            "mitre": stage["mitre"],
+            "challenge": {
+                "prompt": stage["challenge"]["prompt"],
+                "options": safe_options
+            }
+        })
+
+    return jsonify({
+        "title": scenario["title"],
+        "headline": scenario["headline"],
+        "overview": scenario["overview"],
+        "targets": scenario["targets"],
+        "tips": scenario["tips"],
+        "stages": safe_stages
+    }), 200
+
+
+@app.route("/api/simulation/start", methods=["POST"])
+@jwt_required()
+def start_simulation():
+    data = request.get_json()
+    mode = data.get("mode")
+    attack = data.get("attack")
+    user_id = get_jwt_identity()
+
+    scenario = db.scenarios.find_one({"mode": mode, "attack": attack})
+    if not scenario:
+        return jsonify({"error": "Scenario not found"}), 404
+
+    session = {
+        "user_id": user_id,
+        "mode": mode,
+        "attack": attack,
+        "scenario_id": scenario["_id"],
+        "current_stage_idx": 0,
+        "choices": [],
+        "log_lines": [],
+        "status": "in_progress",
+        "started_at": datetime.utcnow().isoformat()
+    }
+    result = db.simulation_sessions.insert_one(session)
+
+    return jsonify({
+        "session_id": str(result.inserted_id),
+        "total_stages": len(scenario["stages"])
+    }), 201
+
+
+@app.route("/api/simulation/<session_id>/choice", methods=["POST"])
+@jwt_required()
+def submit_choice(session_id):
+    data = request.get_json()
+    option_id = data.get("optionId")
+
+    try:
+        obj_id = ObjectId(session_id)
+    except InvalidId:
+        return jsonify({"error": "Invalid session ID"}), 400
+
+    session = db.simulation_sessions.find_one({"_id": obj_id})
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+    if session["status"] != "in_progress":
+        return jsonify({"error": "Simulation already ended"}), 400
+
+    scenario = db.scenarios.find_one({"_id": session["scenario_id"]})
+    stage_idx = session["current_stage_idx"]
+    stage = scenario["stages"][stage_idx]
+
+    chosen_option = next((o for o in stage["challenge"]["options"] if o["id"] == option_id), None)
+    if not chosen_option:
+        return jsonify({"error": "Invalid option"}), 400
+
+    points_map = {"best": 10, "risky": 5, "fail": 0}
+    points = points_map[chosen_option["outcome"]]
+
+    db.simulation_sessions.update_one(
+        {"_id": session["_id"]},
+        {
+            "$push": {
+                "choices": {
+                    "stageId": stage["stageId"],
+                    "optionId": option_id,
+                    "outcome": chosen_option["outcome"],
+                    "points": points
+                },
+                "log_lines": stage["log"]
+            }
+        }
+    )
+
+    ended = chosen_option["outcome"] == "fail"
+    next_stage_idx = stage_idx + 1
+    is_last_stage = next_stage_idx >= len(scenario["stages"])
+
+    if ended or is_last_stage:
+        db.simulation_sessions.update_one(
+            {"_id": session["_id"]},
+            {"$set": {"status": "failed" if ended else "completed"}}
+        )
+    else:
+        db.simulation_sessions.update_one(
+            {"_id": session["_id"]},
+            {"$set": {"current_stage_idx": next_stage_idx}}
+        )
+
+    return jsonify({
+        "outcome": chosen_option["outcome"],
+        "feedback": chosen_option["feedback"],
+        "points": points,
+        "log": stage["log"],
+        "ended": ended or is_last_stage,
+        "nextStageIdx": None if (ended or is_last_stage) else next_stage_idx
+    }), 200
+
+
+@app.route("/api/simulation/<session_id>/complete", methods=["POST"])
+@jwt_required()
+def complete_simulation(session_id):
+    try:
+        obj_id = ObjectId(session_id)
+    except InvalidId:
+        return jsonify({"error": "Invalid session ID"}), 400
+
+    session = db.simulation_sessions.find_one({"_id": obj_id})
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+
+    scenario = db.scenarios.find_one({"_id": session["scenario_id"]})
+    total_points = sum(c["points"] for c in session["choices"])
+    max_points = len(scenario["stages"]) * 10
+
+    report = {
+        "user_id": session["user_id"],
+        "mode": session["mode"],
+        "attack": session["attack"],
+        "result": session["status"],
+        "score": total_points,
+        "max_score": max_points,
+        "choices": session["choices"],
+        "log_lines": session["log_lines"],
+        "created_at": datetime.utcnow().isoformat()
+    }
+    db.reports.insert_one(report)
+
+    return jsonify({"message": "Report saved", "score": total_points}), 200
 
 
 # ================================================================

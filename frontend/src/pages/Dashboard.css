@@ -267,3 +267,34 @@
   flex-shrink: 0;
   white-space: nowrap;
 }
+
+.db-topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+.db-nav {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+.db-nav-link {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 6px 0;
+  transition: color 0.2s;
+}
+
+.db-nav-link:hover:not(:disabled) { color: #fff; }
+
+.db-nav-link-disabled {
+  color: #374151;
+  cursor: not-allowed;
+}

@@ -9,6 +9,8 @@ import AlertQueue from './pages/AlertQueue'
 import Landing from './pages/Landing'
 import SOCSimulator from './pages/SOCSimulator'
 import Outcome from './pages/Outcome'
+import Learn from './pages/Learn'
+
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token')
@@ -28,6 +30,8 @@ function App() {
       <Route path="/simulation" element={<AlertQueue />} />
       <Route path="/soc-simulator" element={<SOCSimulator />} />
       <Route path="/outcome" element={<Outcome />} />
+      <Route path="/learn" element={<Learn />} />
+      <Route path="/learn/:slug" element={<Learn />} />
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Dashboard />

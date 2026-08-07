@@ -42,4 +42,12 @@ export const startSimulation = (data)         => API.post('/api/simulation/start
 export const submitChoice    = (sessionId, optionId) => API.post(`/api/simulation/${sessionId}/choice`, { optionId })
 export const completeSimulation = (sessionId) => API.post(`/api/simulation/${sessionId}/complete`)
 
+
+// Learn Hub
+export const getLearnArticles   = (category) => API.get('/api/learn/articles', { params: category ? { category } : {} })
+export const getLearnArticle    = (slug)     => API.get(`/api/learn/articles/${slug}`)
+export const getLearnCategories = ()         => API.get('/api/learn/categories')
+
+
+
 export default API

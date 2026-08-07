@@ -499,6 +499,41 @@ def complete_simulation(session_id):
 
     return jsonify({"message": "Report saved", "score": total_points}), 200
 
+# ================================================================
+#  LEARN HUB
+# ================================================================
+
+@app.route("/api/learn/articles", methods=["GET"])
+@jwt_required()
+def get_learn_articles():
+    category = request.args.get("category")
+    query = {"category": category} if category else {}
+    articles = list(db.learn_articles.find(
+        query,
+        {"content": 0, "furtherReading": 0}  # list view doesn't need full body
+    ))
+    for a in articles:
+        a["_id"] = str(a["_id"])
+    return jsonify({"articles": articles}), 200
+
+
+@app.route("/api/learn/articles/<slug>", methods=["GET"])
+@jwt_required()
+def get_learn_article(slug):
+    article = db.learn_articles.find_one({"slug": slug})
+    if not article:
+        return jsonify({"error": "Article not found"}), 404
+    article["_id"] = str(article["_id"])
+    return jsonify({"article": article}), 200
+
+
+@app.route("/api/learn/categories", methods=["GET"])
+@jwt_required()
+def get_learn_categories():
+    categories = db.learn_articles.distinct("category")
+    return jsonify({"categories": categories}), 200
+
+
 
 # ================================================================
 #  HEALTH CHECK

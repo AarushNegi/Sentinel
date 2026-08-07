@@ -113,11 +113,17 @@ export default function Dashboard() {
     <div className="db-page">
       <NetworkBackground variant="blue" />
 
-      <header className="db-topbar">
+     <header className="db-topbar">
         <span className="db-logo">
           Sentinel
           <span className="db-live-dot" />
         </span>
+
+        <nav className="db-nav">
+          <button className="db-nav-link" onClick={() => navigate('/learn')}>Learn</button>
+          <button className="db-nav-link db-nav-link-disabled" disabled>Challenges</button>
+        </nav>
+
         <div className="db-user-pill">
           <span>{user?.name}</span>
           <span className="db-role">{user?.role}</span>

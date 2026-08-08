@@ -1,162 +1,221 @@
-# Sentinel
+# 🛡️ Sentinel
 
-### Interactive Cyber Attack Kill Chain Simulation Platform
+<h1 align="center">Sentinel</h1>
+
+<h3 align="center">
+Interactive Cyber Attack Kill Chain Simulation Platform
+</h3>
 
 <p align="center">
-  <b>Learn Cyber Attacks. Understand Every Stage. Without Performing Real Attacks.</b>
+  Learn Cyber Attacks. Understand Every Stage. Defend Better.<br>
+  <b>Without Performing Real Attacks.</b>
+</p>
+
+<p align="center">
+
+![Python](https://img.shields.io/badge/Python-3.9+-blue)
+![React](https://img.shields.io/badge/React-Frontend-61DAFB)
+![Flask](https://img.shields.io/badge/Flask-Backend-black)
+![MITRE ATT\&CK](https://img.shields.io/badge/MITRE-ATT%26CK-red)
+![Educational](https://img.shields.io/badge/Purpose-Educational-green)
+![License](https://img.shields.io/badge/License-Educational-orange)
+
 </p>
 
 ---
 
-## Overview
+## 🚀 What is Sentinel?
 
-**Sentinel** is an enterprise-grade cybersecurity learning platform that simulates the complete lifecycle of cyber attacks in a safe, controlled, and educational environment.
+**Sentinel** is an interactive cybersecurity simulation platform that visualizes the complete lifecycle of cyber attacks across a simulated enterprise environment.
 
-Unlike traditional learning platforms that rely on static case studies or theoretical explanations, Sentinel provides an interactive visual experience where users can observe attacks unfold across a simulated enterprise network in real time.
+Instead of reading static case studies or screenshots, users observe attacks unfold in real time through animated infrastructure maps, live log streams, attack timelines, and defensive analytics.
 
-The platform generates realistic security logs, maps attacker actions to the Cyber Kill Chain and MITRE ATT&CK frameworks, and visualizes attack progression through an immersive dashboard experience.
+The platform transforms complex security concepts into an immersive visual learning experience.
 
-No real attacks, malware, or exploitation techniques are executed.
-
----
-
-## Features
-
-### Interactive Kill Chain Visualization
-
-Visualize every stage of the cyber kill chain:
-
-* Reconnaissance
-* Weaponization
-* Delivery
-* Exploitation
-* Installation
-* Command & Control
-* Actions on Objectives
-
-Each stage is represented as an interactive animated node connected through attack paths.
+> ⚠️ Sentinel performs **no real attacks**, executes **no malware**, and interacts with **no external systems**.
 
 ---
 
-### Enterprise Network Simulation
+## 🎯 Core Objectives
 
-Simulate attacks across realistic infrastructure:
+Sentinel was designed to:
 
-* Internet
-* Firewall
-* Web Server
-* Database Server
-* Employee Workstations
-* File Server
-* Cloud Storage
-
-Attack routes illuminate dynamically while defensive responses update in real time.
+* ✅ Bridge the gap between cybersecurity theory and practice
+* ✅ Teach incident response workflows
+* ✅ Visualize attacker decision-making processes
+* ✅ Improve defensive thinking skills
+* ✅ Provide safe hands-on cybersecurity education
 
 ---
 
-### Real-Time Log Generation
+## ⚔️ Cyber Kill Chain Visualization
 
-Generate realistic security logs such as:
+Observe every stage of an attack as it progresses through the environment.
 
 ```text
-INFO      Port Scan Started
-SUCCESS   SSH Port Open
-WARNING   Credential Reuse Detected
-ALERT     Privilege Escalation Detected
-CRITICAL  Sensitive Data Accessed
+Reconnaissance
+     ↓
+Weaponization
+     ↓
+Delivery
+     ↓
+Exploitation
+     ↓
+Installation
+     ↓
+Command & Control
+     ↓
+Actions on Objectives
 ```
 
-Logs are correlated to reconstruct the complete attack timeline.
+### Features
+
+* Animated attack paths
+* Interactive stage nodes
+* MITRE ATT&CK mappings
+* Severity indicators
+* Defensive opportunity markers
 
 ---
 
-### Attack Timeline
+## 🏢 Enterprise Network Simulation
 
-Track the progression of an attack:
+Sentinel recreates a realistic enterprise environment.
 
 ```text
-09:01 Recon Started
-09:03 Port Scan
-09:04 Open Port Found
-09:06 Phishing Email Delivered
-09:08 Credentials Captured
-09:10 Privilege Escalation
-09:14 Lateral Movement
-09:18 Data Exfiltration
+                    Internet
+                        │
+                   Firewall
+                        │
+        ┌───────────────┼───────────────┐
+        │               │               │
+    Web Server      File Server     Cloud Storage
+        │
+   Database Server
+        │
+ Employee Workstations
 ```
 
-Each event contains:
+### Simulated Assets
+
+| Asset              | Purpose                |
+| ------------------ | ---------------------- |
+| 🌐 Internet        | External threat source |
+| 🔥 Firewall        | Traffic inspection     |
+| 🖥 Web Server      | Public services        |
+| 🗄 Database Server | Data storage           |
+| 👨‍💻 Workstations | Employee systems       |
+| 📂 File Server     | Internal sharing       |
+| ☁ Cloud Storage    | External resources     |
+
+---
+
+## 📜 Real-Time Log Generation
+
+```text
+[09:01] INFO      Reconnaissance Started
+[09:03] INFO      Port Scan Detected
+[09:04] SUCCESS   SSH Port Open
+[09:06] WARNING   Phishing Email Delivered
+[09:08] ALERT     Credential Reuse Detected
+[09:10] ALERT     Privilege Escalation Attempt
+[09:14] WARNING   Lateral Movement Detected
+[09:18] CRITICAL  Sensitive Data Accessed
+```
+
+Each generated event contains:
 
 * Timestamp
-* Severity Level
+* Severity
+* Source Asset
+* Target Asset
 * Kill Chain Stage
-* MITRE ATT&CK Mapping
+* ATT&CK Technique Mapping
 
 ---
 
-### AI Attack Summary
+## ⏱ Attack Timeline
 
-After every simulation, Sentinel automatically generates a detailed summary describing:
-
-* Initial access vector
-* Attacker movement
-* Privilege escalation
-* Defensive opportunities
-* Recommended mitigations
+| Time  | Event                    |
+| ----- | ------------------------ |
+| 09:01 | Recon Started            |
+| 09:03 | Port Scan                |
+| 09:04 | Open Port Found          |
+| 09:06 | Phishing Email Delivered |
+| 09:08 | Credentials Captured     |
+| 09:10 | Privilege Escalation     |
+| 09:14 | Lateral Movement         |
+| 09:18 | Data Exfiltration        |
 
 ---
 
-### Automated Incident Reports
+## 🤖 AI Attack Summary
 
-Generate enterprise-style reports containing:
+After every simulation Sentinel automatically generates:
+
+* Initial Access Vector
+* Attacker Objectives
+* Privilege Escalation Path
+* Defensive Opportunities
+* Mitigation Recommendations
+* Risk Assessment
+
+---
+
+## 📊 Automated Incident Reports
+
+Generated reports include:
 
 * Executive Summary
 * Timeline of Events
-* Affected Assets
-* MITRE ATT&CK Mapping
+* Affected Systems
+* ATT&CK Mapping
 * Risk Score
 * Security Recommendations
+* Lessons Learned
 
 ---
 
-### Learning Hub
+## 🎓 Learning Hub
 
-Interactive cybersecurity learning modules:
+### Learning Levels
 
-* Beginner
-* Intermediate
-* Advanced
+| Level           | Focus                 |
+| --------------- | --------------------- |
+| 🟢 Beginner     | Security fundamentals |
+| 🟡 Intermediate | Incident analysis     |
+| 🔴 Advanced     | Threat hunting        |
 
-Includes:
+### Included Content
 
-* Videos
+* Video Lessons
 * Flashcards
-* Quizzes
+* Interactive Quizzes
 * Progress Tracking
 * Achievements
+* Certifications
 
 ---
 
-## Dashboard Modules
+## 🖥 Dashboard Modules
 
 ### Dashboard
 
 * Active Simulations
 * Threat Level
-* Generated Logs
-* Completed Scenarios
-* Kill Chain Progress
+* Live Logs
+* Scenario Progress
+* Kill Chain Tracking
 
 ### Simulation Engine
 
-* Attack Scenario Selection
+* Scenario Selection
 * Network Size Configuration
-* Attack Speed Control
-* Red Team / Blue Team Modes
+* Simulation Speed Controls
+* Red Team Mode
+* Blue Team Mode
 
 ### Attack Library
-
-Available scenarios include:
 
 | Attack Type       | Difficulty   | Category          |
 | ----------------- | ------------ | ----------------- |
@@ -168,7 +227,7 @@ Available scenarios include:
 
 ---
 
-## Technology Stack
+## 🏗 Technology Stack
 
 ### Backend
 
@@ -192,25 +251,14 @@ Available scenarios include:
 * Matplotlib
 * Recharts
 
-### Version Control
+### Development
 
 * Git
 * GitHub
 
 ---
-## Educational Objectives
 
-Sentinel aims to:
-
-* Bridge the gap between cybersecurity theory and practice.
-* Help learners understand attacker behavior.
-* Teach incident analysis using realistic logs.
-* Provide safe cybersecurity experimentation.
-* Improve defensive thinking and threat analysis skills.
-
----
-
-## Target Users
+## 👥 Target Users
 
 * Cybersecurity Students
 * Universities and Colleges
@@ -221,35 +269,48 @@ Sentinel aims to:
 
 ---
 
-## Safety Statement
+## 🔒 Safety Statement
 
-Sentinel does **not** perform real attacks.
+Sentinel is an educational simulation platform.
 
-The platform:
+The project:
 
-* Does not exploit live systems.
-* Does not execute malware.
-* Does not interact with external networks.
-* Does not provide offensive tooling.
+* ✅ Does not exploit systems
+* ✅ Does not deploy malware
+* ✅ Does not scan networks
+* ✅ Does not interact with live infrastructure
+* ✅ Does not provide offensive tooling
 
-All activities occur within a fully controlled educational simulation environment.
+All activities occur inside a fully controlled educational environment.
 
 ---
 
-## Future Enhancements
+## 🔮 Future Roadmap
 
 * AI Threat Prediction
 * Adaptive Blue Team Responses
 * Incident Replay System
-* Time Travel Analysis
 * Attack Comparison Engine
+* Time Travel Analysis
 * Multi-User Collaboration
-* Leaderboards and Certifications
+* Certifications
+* Team Competitions
+* Leaderboards
 
 ---
 
-## License
+## 📄 License
 
 This project is intended strictly for educational and research purposes.
 
 Commercial usage requires explicit permission from the authors.
+
+---
+
+<p align="center">
+
+### 🛡️ Understand Attacks. Improve Defenses. Learn Safely.
+
+**Sentinel — Interactive Cyber Attack Kill Chain Simulation Platform**
+
+</p>

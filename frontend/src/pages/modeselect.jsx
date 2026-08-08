@@ -1,17 +1,16 @@
-// pages/ModeSelect.jsx
 import { useNavigate } from 'react-router-dom'
 import './ModeSelect.css'
 import NetworkBackground from '../components/NetworkBackground'
+import HomeButton from '../components/HomeButton'
 
 export default function ModeSelect() {
   const navigate = useNavigate()
-
   const selectMode = (mode) => {
     navigate('/attack-select', { state: { mode } })
   }
-
   return (
     <div className="ms-page">
+      <HomeButton />
       <NetworkBackground variant="blue" />
       <div className="ms-intro">
         <span className="ms-eyebrow">SENTINEL // KILL CHAIN SIMULATOR</span>

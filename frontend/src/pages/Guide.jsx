@@ -15,6 +15,7 @@ export default function Guide() {
   useEffect(() => {
     setGuide(null)
     setError(false)
+    
 
     import(`../data/guides/${mode}/${attack}.js`)
       .then((mod) => setGuide(mod.default))
@@ -22,13 +23,36 @@ export default function Guide() {
   }, [mode, attack])
 
  const startSimulation = () => {
-    if (mode === 'blue') {
-      navigate('/soc-simulator', { state: { attack } })
-    } else {
-      navigate('/simulation', { state: { mode, attack } })
-    }
+  if (mode === 'red' && attack === 'phishing') {
+    navigate('/red-phishing')
+    return
+  }
+  if (mode === 'red' && attack === 'ransomware') {
+  navigate('/red-ransomware')
+  return
   }
 
+  if (mode === 'blue' && attack === 'phishing') {
+    navigate('/blue-phishing')
+    return
+  }
+  if (mode === 'blue' && attack === 'ransomware') {
+  navigate('/blue-ransomware')
+  return
+  }
+  if (mode === 'blue' && attack === 'supplyChain') {
+  navigate('/blue-supply-chain')
+  return
+  }
+  if (mode === 'red' && attack === 'supplyChain') {
+  navigate('/red-supply-chain')
+  return
+  }
+
+  navigate('/simulation', {
+    state: { mode, attack }
+  })
+}
   if (error) {
     return (
       <div className={`gd-page gd-${mode}`}>

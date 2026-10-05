@@ -1,0 +1,1150 @@
+/* =========================================================
+   BLUE PHISHING SIMULATOR
+   ========================================================= */
+
+.blue-phishing-page {
+  min-height: 100vh;
+
+  padding: 28px 34px 50px;
+
+  background:
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(38, 122, 255, 0.08),
+      transparent 30%
+    ),
+    #080b11;
+
+  color: #e9edf5;
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.bt-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  max-width: 1450px;
+  margin: 0 auto 26px;
+}
+
+.bt-brand-line {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: #61a8ff;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  letter-spacing: 1.8px;
+}
+
+.bt-brand-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #55a5ff;
+
+  box-shadow:
+    0 0 14px rgba(85, 165, 255, 0.75);
+}
+
+.bt-brand h1 {
+  margin: 8px 0 5px;
+
+  font-size: 29px;
+  font-weight: 800;
+
+  letter-spacing: -0.8px;
+}
+
+.bt-brand p {
+  margin: 0;
+
+  color: #7d8797;
+
+  font-size: 13px;
+}
+
+.bt-header-stats {
+  display: flex;
+  align-items: stretch;
+
+  border: 1px solid #202735;
+
+  background: #0d1119;
+}
+
+.bt-stat {
+  min-width: 115px;
+
+  padding: 12px 17px;
+
+  border-left: 1px solid #202735;
+}
+
+.bt-stat:first-child {
+  border-left: none;
+}
+
+.bt-stat span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #697487;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 1.3px;
+}
+
+.bt-stat strong {
+  color: #edf2fa;
+
+  font-family: monospace;
+
+  font-size: 13px;
+}
+
+.bt-danger {
+  color: #ff6969 !important;
+}
+
+.bt-success {
+  color: #54d69a !important;
+}
+
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+
+.bt-progress-section {
+  max-width: 1450px;
+  margin: 0 auto 22px;
+}
+
+.bt-progress-track {
+  height: 3px;
+
+  overflow: hidden;
+
+  background: #1c2431;
+}
+
+.bt-progress-fill {
+  height: 100%;
+
+  background: #4b9eff;
+
+  transition: width 0.35s ease;
+}
+
+.bt-stage-list {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+.bt-stage {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 5px 7px;
+
+  border: none;
+
+  background: transparent;
+
+  color: #687385;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.7px;
+
+  cursor: pointer;
+}
+
+.bt-stage-number {
+  display: grid;
+  place-items: center;
+
+  width: 21px;
+  height: 21px;
+
+  border: 1px solid #303948;
+
+  border-radius: 50%;
+
+  font-size: 9px;
+}
+
+.bt-stage.active {
+  color: #68adff;
+}
+
+.bt-stage.active .bt-stage-number {
+  border-color: #559fff;
+
+  background: rgba(78, 157, 255, 0.12);
+}
+
+.bt-stage.finished {
+  color: #6bd5a5;
+}
+
+.bt-stage.finished .bt-stage-number {
+  border-color: #3c9c73;
+}
+
+
+/* =========================================================
+   MAIN LAYOUT
+   ========================================================= */
+
+.bt-layout {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    350px;
+
+  gap: 20px;
+
+  max-width: 1450px;
+
+  margin: 0 auto;
+}
+
+.bt-main-panel,
+.bt-side-card {
+  border: 1px solid #202735;
+
+  background: #0d1119;
+}
+
+.bt-main-panel {
+  min-width: 0;
+}
+
+.bt-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 15px 20px;
+
+  border-bottom: 1px solid #202735;
+
+  background: #10151e;
+}
+
+.bt-panel-header span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #667286;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 1.4px;
+}
+
+.bt-panel-header strong {
+  font-size: 13px;
+}
+
+.bt-live {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  color: #58d39c;
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.bt-live span {
+  width: 7px;
+  height: 7px;
+
+  margin: 0;
+
+  border-radius: 50%;
+
+  background: #58d39c;
+}
+
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.bt-card-content {
+  padding: 28px;
+}
+
+.bt-section-tag {
+  margin-bottom: 13px;
+
+  color: #579fff;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 1.7px;
+}
+
+.bt-card-content h2 {
+  margin: 0 0 10px;
+
+  font-size: 23px;
+  font-weight: 750;
+
+  letter-spacing: -0.4px;
+}
+
+.bt-muted {
+  max-width: 780px;
+
+  color: #7e8999;
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   ALERT GRID
+   ========================================================= */
+
+.bt-alert-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  margin: 28px 0;
+
+  border: 1px solid #202735;
+}
+
+.bt-alert-grid > div {
+  padding: 17px;
+
+  border-right: 1px solid #202735;
+  border-bottom: 1px solid #202735;
+}
+
+.bt-alert-grid > div:nth-child(even) {
+  border-right: none;
+}
+
+.bt-alert-grid > div:nth-last-child(-n + 2) {
+  border-bottom: none;
+}
+
+.bt-alert-grid span,
+.bt-ioc-row span,
+.bt-remediation-card span,
+.bt-user-card span {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #667285;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 1.2px;
+}
+
+.bt-alert-grid strong,
+.bt-ioc-row strong {
+  color: #e8edf5;
+
+  font-family: monospace;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.bt-action-row {
+  display: flex;
+  gap: 10px;
+}
+
+.bt-primary {
+  min-height: 45px;
+
+  padding: 0 20px;
+
+  border: 1px solid #4e9cff;
+
+  background: #4e9cff;
+
+  color: #07101c;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  letter-spacing: 0.5px;
+
+  cursor: pointer;
+}
+
+.bt-primary:hover {
+  background: #69adff;
+}
+
+.bt-primary.complete {
+  background: #153e31;
+
+  border-color: #328c6b;
+
+  color: #6fe0ae;
+}
+
+.bt-close {
+  display: block;
+
+  width: 100%;
+
+  margin-top: 12px;
+
+  min-height: 45px;
+
+  border: 1px solid #374152;
+
+  background: transparent;
+
+  color: #b8c1cf;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.bt-close:hover {
+  background: #151b25;
+}
+
+
+/* =========================================================
+   EMAIL
+   ========================================================= */
+
+.bt-mail {
+  overflow: hidden;
+
+  margin: 22px 0;
+
+  border: 1px solid #dfe3e9;
+
+  background: #f7f8fa;
+
+  color: #222733;
+}
+
+.bt-mail-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 12px 16px;
+
+  border-bottom: 1px solid #dfe3e9;
+
+  background: #e9ecf0;
+
+  font-size: 10px;
+}
+
+.bt-mail-meta {
+  padding: 16px;
+}
+
+.bt-mail-meta > div {
+  display: grid;
+
+  grid-template-columns: 80px 1fr;
+
+  gap: 10px;
+
+  padding: 7px 0;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.bt-mail-meta span {
+  color: #858c97;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.bt-mail-meta strong {
+  font-size: 11px;
+  font-family: monospace;
+}
+
+.bt-mail-body {
+  padding: 25px;
+
+  background: #ffffff;
+
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.bt-sim-link {
+  margin: 8px 0 10px;
+
+  padding: 10px 17px;
+
+  border: none;
+
+  background: #eef1f5;
+
+  color: #4e5969;
+
+  font-size: 11px;
+
+  cursor: default;
+}
+
+
+/* =========================================================
+   ACTION GRID
+   ========================================================= */
+
+.bt-action-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.bt-action {
+  min-height: 70px;
+
+  padding: 12px;
+
+  border: 1px solid #27303e;
+
+  background: #111722;
+
+  color: #d6dce6;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.bt-action:hover {
+  border-color: #4b8bd3;
+
+  background: #141c28;
+}
+
+.bt-action span {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: #526075;
+
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.bt-action {
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.bt-action.done {
+  border-color: #2c7559;
+
+  background: #0f241c;
+
+  color: #64d8a1;
+}
+
+
+/* =========================================================
+   IOC
+   ========================================================= */
+
+.bt-ioc-card {
+  margin: 25px 0;
+
+  border: 1px solid #252e3c;
+}
+
+.bt-ioc-row {
+  display: grid;
+
+  grid-template-columns: 150px 1fr;
+
+  gap: 20px;
+
+  padding: 17px;
+
+  border-bottom: 1px solid #252e3c;
+}
+
+.bt-ioc-row:last-child {
+  border-bottom: none;
+}
+
+
+/* =========================================================
+   USER
+   ========================================================= */
+
+.bt-user-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  margin: 22px 0;
+
+  padding: 20px;
+
+  border: 1px solid #252e3c;
+
+  background: #101620;
+}
+
+.bt-avatar {
+  display: grid;
+  place-items: center;
+
+  width: 54px;
+  height: 54px;
+
+  border: 1px solid #4b91e5;
+
+  border-radius: 50%;
+
+  background: #132238;
+
+  color: #73b5ff;
+
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.bt-user-card h3 {
+  margin: 0 0 5px;
+
+  font-size: 15px;
+}
+
+.bt-user-card p {
+  margin: 3px 0;
+
+  color: #758195;
+
+  font-size: 10px;
+}
+
+.bt-alert-box {
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+
+  padding: 16px;
+
+  border-left: 3px solid #e05d5d;
+
+  background: #211517;
+}
+
+.bt-alert-box strong {
+  color: #ff7777;
+
+  font-size: 10px;
+}
+
+.bt-alert-box span {
+  color: #a6adb9;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   CONTAINMENT
+   ========================================================= */
+
+.bt-containment-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-top: 25px;
+}
+
+.bt-contain {
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  gap: 9px;
+
+  min-height: 100px;
+
+  padding: 18px;
+
+  border: 1px solid #293342;
+
+  background: #111722;
+
+  color: #dce2eb;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.bt-contain:hover {
+  border-color: #579fff;
+}
+
+.bt-contain strong {
+  color: #66768c;
+
+  font-size: 8px;
+
+  letter-spacing: 1.5px;
+}
+
+.bt-contain span {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.bt-contain.done {
+  border-color: #307d5e;
+
+  background: #10251d;
+
+  color: #62dba3;
+}
+
+
+/* =========================================================
+   REMEDIATION
+   ========================================================= */
+
+.bt-remediation-card {
+  display: grid;
+
+  gap: 0;
+
+  margin: 24px 0;
+
+  border: 1px solid #293342;
+}
+
+.bt-remediation-card > div {
+  padding: 16px;
+
+  border-bottom: 1px solid #293342;
+}
+
+.bt-remediation-card > div:last-child {
+  border-bottom: none;
+}
+
+.bt-remediation-card strong {
+  display: block;
+
+  font-family: monospace;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.bt-sidebar {
+  display: flex;
+  flex-direction: column;
+
+  gap: 15px;
+
+  min-width: 0;
+}
+
+.bt-side-card {
+  overflow: hidden;
+}
+
+.bt-side-title {
+  padding: 13px 15px;
+
+  border-bottom: 1px solid #202735;
+
+  color: #6f7d91;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 1.5px;
+}
+
+.bt-status-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 12px 15px;
+
+  border-bottom: 1px solid #1b222e;
+}
+
+.bt-status-row:last-child {
+  border-bottom: none;
+}
+
+.bt-status-row span {
+  color: #596679;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.bt-status-row strong {
+  color: #dce3ed;
+
+  font-family: monospace;
+
+  font-size: 9px;
+
+  text-align: right;
+}
+
+
+/* =========================================================
+   TELEMETRY
+   ========================================================= */
+
+.bt-events {
+  max-height: 360px;
+
+  overflow-y: auto;
+}
+
+.bt-event {
+  display: flex;
+  gap: 9px;
+
+  padding: 11px 14px;
+
+  border-bottom: 1px solid #1a212c;
+}
+
+.bt-event-dot {
+  flex: 0 0 auto;
+
+  width: 5px;
+  height: 5px;
+
+  margin-top: 5px;
+
+  border-radius: 50%;
+
+  background: #4f9eff;
+}
+
+.bt-event p {
+  margin: 0;
+
+  color: #8994a5;
+
+  font-family: monospace;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   CHECKLIST
+   ========================================================= */
+
+.bt-checklist {
+  padding: 8px 15px 12px;
+}
+
+.bt-checklist > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 0;
+
+  color: #727e90;
+
+  font-size: 9px;
+}
+
+.bt-checklist span {
+  color: #4c596b;
+
+  font-size: 11px;
+}
+
+.bt-checklist .checked {
+  color: #63d9a2;
+}
+
+.bt-checklist .checked span {
+  color: #63d9a2;
+}
+
+
+/* =========================================================
+   FEEDBACK
+   ========================================================= */
+
+.bt-action-feedback {
+  margin: 0 28px 25px;
+
+  padding: 11px 13px;
+
+  border-left: 2px solid #4d9eff;
+
+  background: #101b2a;
+
+  color: #8fb9e8;
+
+  font-family: monospace;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   COMPLETION
+   ========================================================= */
+
+.bt-complete {
+  min-height: 430px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.bt-success-icon {
+  display: grid;
+  place-items: center;
+
+  width: 70px;
+  height: 70px;
+
+  margin-bottom: 20px;
+
+  border: 1px solid #3d9d75;
+
+  border-radius: 50%;
+
+  background: #10251d;
+
+  color: #61d9a1;
+
+  font-size: 28px;
+}
+
+.bt-final-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  width: 100%;
+
+  margin: 25px 0;
+
+  border: 1px solid #27303e;
+}
+
+.bt-final-stats > div {
+  padding: 18px;
+
+  border-right: 1px solid #27303e;
+}
+
+.bt-final-stats > div:last-child {
+  border-right: none;
+}
+
+.bt-final-stats span {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #647084;
+
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.bt-final-stats strong {
+  font-family: monospace;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+  .bt-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .bt-header-stats {
+    width: 100%;
+  }
+
+  .bt-stat {
+    flex: 1;
+  }
+
+  .bt-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .bt-sidebar {
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .bt-sidebar .bt-side-card:last-child {
+    grid-column: span 2;
+  }
+}
+
+
+@media (max-width: 720px) {
+
+  .blue-phishing-page {
+    padding: 18px 14px 35px;
+  }
+
+  .bt-header-stats {
+    overflow-x: auto;
+  }
+
+  .bt-stat {
+    min-width: 100px;
+  }
+
+  .bt-stage-list {
+    overflow-x: auto;
+
+    justify-content: flex-start;
+  }
+
+  .bt-stage {
+    flex: 0 0 auto;
+  }
+
+  .bt-card-content {
+    padding: 20px;
+  }
+
+  .bt-alert-grid,
+  .bt-containment-grid,
+  .bt-action-grid,
+  .bt-final-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .bt-alert-grid > div,
+  .bt-final-stats > div {
+    border-right: none;
+    border-bottom: 1px solid #202735;
+  }
+
+  .bt-final-stats > div:last-child {
+    border-bottom: none;
+  }
+
+  .bt-ioc-row {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .bt-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .bt-sidebar .bt-side-card:last-child {
+    grid-column: auto;
+  }
+}

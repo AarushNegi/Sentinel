@@ -59,15 +59,32 @@ export default function Simulation() {
   }
 
   const handleContinue = async () => {
-    if (feedback.ended) {
-      await completeSimulation(sessionId)
-      navigate('/outcome', { state: { sessionId, mode, attack } })
-      return
+  if (feedback.ended) {
+    try {
+      const res = await completeSimulation(sessionId)
+
+      navigate('/outcome', {
+        state: {
+          report: res.data.report,
+          sessionId,
+          mode,
+          attack
+        }
+      })
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+        'Failed to generate the outcome report.'
+      )
     }
-    setStageIdx(feedback.nextStageIdx)
-    setSelectedId(null)
-    setFeedback(null)
+
+    return
   }
+
+  setStageIdx(feedback.nextStageIdx)
+  setSelectedId(null)
+  setFeedback(null)
+}
 
   if (loading) {
     return (

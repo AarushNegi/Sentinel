@@ -10,12 +10,22 @@ import DashboardStatCard from '../components/DashboardStatCard'
 import TeamModeCard from '../components/TeamModeCard'
 import RecentActivity from '../components/RecentActivity'
 import RecommendedSimulations from '../components/RecommendedSimulations'
-import ThreatFeed from '../components/ThreatFeed'
+import ThreatFeed, { timeAgo as clockSecondsAgo } from '../components/ThreatFeed'
 import {
   GraduationCap, Target, Trophy, Flame, Clock, Crosshair, Info, Terminal,
   ShieldCheck, Eye, Search, Activity,
 } from 'lucide-react'
 import './Dashboard.css'
+
+// Timestamped relative to "now" (computed once at module load, i.e. on every
+// page refresh) so the seed rows never show a stale fixed clock time.
+const LIVE_THREAT_ROWS = [
+  { time: clockSecondsAgo(0),  type: 'Phishing Email',        source: '185.226.12.41', target: 'India',          severity: 'High' },
+  { time: clockSecondsAgo(14), type: 'Brute Force Login',     source: '41.77.33.102',  target: 'United States',  severity: 'Medium' },
+  { time: clockSecondsAgo(31), type: 'Malware Distribution',  source: '103.21.244.18', target: 'Germany',        severity: 'High' },
+  { time: clockSecondsAgo(45), type: 'DDoS Attack',           source: '190.42.12.76',  target: 'Singapore',      severity: 'Critical' },
+  { time: clockSecondsAgo(62), type: 'Suspicious Login',      source: '45.67.89.12',   target: 'United Kingdom', severity: 'Medium' },
+]
 
 function useCountUp(target, duration = 1200) {
   const [value, setValue] = useState(0)
@@ -240,14 +250,9 @@ export default function Dashboard() {
               icon={Activity}
               dotColor="green"
               badgeText="SIMULATED FEED"
-              rows={[
-                { time: '20:14:12', type: 'Phishing Email',        source: '185.226.12.41', target: 'India',          severity: 'High' },
-                { time: '20:13:58', type: 'Brute Force Login',     source: '41.77.33.102',  target: 'United States',  severity: 'Medium' },
-                { time: '20:13:41', type: 'Malware Distribution',  source: '103.21.244.18', target: 'Germany',        severity: 'High' },
-                { time: '20:13:27', type: 'DDoS Attack',           source: '190.42.12.76',  target: 'Singapore',      severity: 'Critical' },
-                { time: '20:13:10', type: 'Suspicious Login',      source: '45.67.89.12',   target: 'United Kingdom', severity: 'Medium' },
-              ]}
+              rows={LIVE_THREAT_ROWS}
               onViewAll={() => {}}
+              live
             />
             <RecommendedSimulations query={search} />
           </section>

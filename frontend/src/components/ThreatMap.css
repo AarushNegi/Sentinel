@@ -93,6 +93,16 @@
 .tm-tone-cyan  { color: var(--sen-cyan); }
 .tm-tone-white { color: var(--sen-text); }
 
+.tm-node-dot { transition: r 0.3s ease; }
+
+.tm-count-bump {
+  animation: tm-count-flash 0.7s ease;
+}
+@keyframes tm-count-flash {
+  0%   { color: #ffffff; text-shadow: 0 0 10px #ffffff; }
+  100% { text-shadow: none; }
+}
+
 @media (max-width: 1100px) {
   .tm-label-name { display: none; }
 }

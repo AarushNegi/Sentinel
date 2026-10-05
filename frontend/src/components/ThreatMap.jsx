@@ -1,16 +1,20 @@
 // components/ThreatMap.jsx
 // Stylized, fully simulated global "attack map" for the login screen preview.
-// All data below is static/simulated — this never calls a live threat feed.
+// Counts tick up locally on an interval purely for a "live" feel — this never
+// calls an external threat feed.
+import { useEffect, useRef, useState } from 'react'
 import './ThreatMap.css'
 
 const REGIONS = [
-  { id: 'na', label: 'North America', x: 165, y: 150, count: 1224, tone: 'red' },
-  { id: 'sa', label: 'South America', x: 250, y: 365, count: 421,  tone: 'cyan' },
-  { id: 'eu', label: 'Europe',        x: 490, y: 115, count: 2418, tone: 'white' },
-  { id: 'af', label: 'Africa',        x: 505, y: 320, count: 389,  tone: 'cyan' },
-  { id: 'as', label: 'Asia',          x: 700, y: 175, count: 3105, tone: 'red' },
-  { id: 'oc', label: 'Oceania',       x: 790, y: 390, count: 276,  tone: 'cyan' },
+  { id: 'na', label: 'North America', x: 165, y: 150, tone: 'red' },
+  { id: 'sa', label: 'South America', x: 250, y: 365, tone: 'cyan' },
+  { id: 'eu', label: 'Europe',        x: 490, y: 115, tone: 'white' },
+  { id: 'af', label: 'Africa',        x: 505, y: 320, tone: 'cyan' },
+  { id: 'as', label: 'Asia',          x: 700, y: 175, tone: 'red' },
+  { id: 'oc', label: 'Oceania',       x: 790, y: 390, tone: 'cyan' },
 ]
+
+const INITIAL_COUNTS = { na: 1224, sa: 421, eu: 2418, af: 389, as: 3105, oc: 276 }
 
 const byId = Object.fromEntries(REGIONS.map(r => [r.id, r]))
 
@@ -32,6 +36,24 @@ function curvePath(a, b) {
 }
 
 export default function ThreatMap() {
+  const [counts, setCounts] = useState(INITIAL_COUNTS)
+  const [bumped, setBumped] = useState(null)
+  const bumpTimeout = useRef(null)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const region = REGIONS[Math.floor(Math.random() * REGIONS.length)]
+      setCounts(prev => ({ ...prev, [region.id]: prev[region.id] + Math.floor(Math.random() * 12) + 1 }))
+      setBumped(region.id)
+      clearTimeout(bumpTimeout.current)
+      bumpTimeout.current = setTimeout(() => setBumped(null), 700)
+    }, 2200 + Math.random() * 1400)
+    return () => {
+      clearInterval(id)
+      clearTimeout(bumpTimeout.current)
+    }
+  }, [])
+
   return (
     <div className="tm-wrap">
       <svg viewBox="0 0 1000 500" className="tm-svg" preserveAspectRatio="xMidYMid meet">
@@ -79,7 +101,7 @@ export default function ThreatMap() {
         {REGIONS.map((r) => (
           <g key={r.id} className="tm-node-group">
             <circle cx={r.x} cy={r.y} r="26" fill="url(#tm-node-glow)" className="tm-node-halo" />
-            <circle cx={r.x} cy={r.y} r="4.5" className="tm-node-dot" />
+            <circle cx={r.x} cy={r.y} r={bumped === r.id ? 6.5 : 4.5} className="tm-node-dot" />
           </g>
         ))}
       </svg>
@@ -88,7 +110,9 @@ export default function ThreatMap() {
         {REGIONS.map((r) => (
           <div key={r.id} className="tm-label" style={{ left: `${r.x / 10}%`, top: `${r.y / 5}%` }}>
             <span className="tm-label-name">{r.label}</span>
-            <span className={`tm-label-count tm-tone-${r.tone}`}>{r.count.toLocaleString()}</span>
+            <span className={`tm-label-count tm-tone-${r.tone} ${bumped === r.id ? 'tm-count-bump' : ''}`}>
+              {counts[r.id].toLocaleString()}
+            </span>
           </div>
         ))}
       </div>

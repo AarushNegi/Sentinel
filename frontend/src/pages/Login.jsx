@@ -3,8 +3,9 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { loginUser, guestLogin } from '../services/api'
 import ThreatMap from '../components/ThreatMap'
-import ThreatFeed, { DEFAULT_THREAT_ROWS } from '../components/ThreatFeed'
+import ThreatFeed, { DEFAULT_THREAT_ROWS, timeAgo } from '../components/ThreatFeed'
 import LoginStatCard from '../components/LoginStatCard'
+import { useLiveNumber } from '../hooks/useLiveNumber'
 import {
   Shield, Mail, Lock, Eye, EyeOff, ArrowRight, User, AlertCircle,
   Info, ShieldCheck, Crosshair, Globe, Radio,
@@ -12,12 +13,14 @@ import {
 import './Login.css'
 
 const EXTRA_THREAT_ROWS = [
-  { time: '20:12:54', type: 'Suspicious Login',      source: '77.91.10.5',    target: 'Brazil',    severity: 'Medium' },
-  { time: '20:12:30', type: 'Malware Distribution',  source: '201.14.88.3',   target: 'Vietnam',   severity: 'High' },
-  { time: '20:12:08', type: 'DDoS Attack',           source: '12.55.201.9',   target: 'France',    severity: 'Critical' },
-  { time: '20:11:49', type: 'Phishing Email',        source: '88.202.17.44',  target: 'Canada',    severity: 'Medium' },
-  { time: '20:11:21', type: 'Brute Force Login',     source: '5.188.60.21',   target: 'Japan',      severity: 'High' },
+  { time: timeAgo(78),  type: 'Suspicious Login',      source: '77.91.10.5',    target: 'Brazil',    severity: 'Medium' },
+  { time: timeAgo(102), type: 'Malware Distribution',  source: '201.14.88.3',   target: 'Vietnam',   severity: 'High' },
+  { time: timeAgo(119), type: 'DDoS Attack',           source: '12.55.201.9',   target: 'France',    severity: 'Critical' },
+  { time: timeAgo(138), type: 'Phishing Email',        source: '88.202.17.44',  target: 'Canada',    severity: 'Medium' },
+  { time: timeAgo(166), type: 'Brute Force Login',     source: '5.188.60.21',   target: 'Japan',      severity: 'High' },
 ]
+
+const EXPANDED_THREAT_ROWS = [...DEFAULT_THREAT_ROWS, ...EXTRA_THREAT_ROWS]
 
 export default function Login() {
   const navigate = useNavigate()
@@ -29,6 +32,10 @@ export default function Login() {
   const [error, setError]     = useState('')
   const [remember, setRemember] = useState(true)
   const [expandFeed, setExpandFeed] = useState(false)
+
+  const threatEvents  = useLiveNumber(12428, { min: 1, max: 6, intervalMs: 3000 })
+  const phishingTries = useLiveNumber(3192,  { min: 1, max: 3, intervalMs: 4500 })
+  const countries     = useLiveNumber(86,    { min: 0, max: 1, intervalMs: 9000 })
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -171,14 +178,15 @@ export default function Login() {
 
           <ThreatFeed
             title="Live Threat Feed"
-            rows={expandFeed ? [...DEFAULT_THREAT_ROWS, ...EXTRA_THREAT_ROWS] : DEFAULT_THREAT_ROWS}
+            rows={expandFeed ? EXPANDED_THREAT_ROWS : DEFAULT_THREAT_ROWS}
             onViewAll={() => setExpandFeed(v => !v)}
+            live
           />
 
           <div className="lg-stats-row">
-            <LoginStatCard icon={ShieldCheck} tone="green" value="12,428" label="Threat Events" delta="18% today" />
-            <LoginStatCard icon={Crosshair} tone="red" value="3,192" label="Phishing Attempts" delta="27% today" />
-            <LoginStatCard icon={Globe} tone="blue" value="86" label="Countries Involved" delta="12% today" />
+            <LoginStatCard icon={ShieldCheck} tone="green" value={threatEvents.toLocaleString()} label="Threat Events" delta="18% today" />
+            <LoginStatCard icon={Crosshair} tone="red" value={phishingTries.toLocaleString()} label="Phishing Attempts" delta="27% today" />
+            <LoginStatCard icon={Globe} tone="blue" value={countries.toLocaleString()} label="Countries Involved" delta="12% today" />
           </div>
         </div>
       </div>

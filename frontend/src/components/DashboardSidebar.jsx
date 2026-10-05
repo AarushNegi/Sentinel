@@ -1,7 +1,7 @@
 // components/DashboardSidebar.jsx
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
-  Home, Radar, Crosshair, ShieldCheck, BookOpen, FileText, User, Settings, LogOut,
+  Home, BookOpen, FileText, User, Settings, LogOut,
 } from 'lucide-react'
 import './DashboardSidebar.css'
 
@@ -12,9 +12,6 @@ export default function DashboardSidebar({ onLogout, onReportsClick }) {
 
   const navItems = [
     { key: 'home',  label: 'Home',               icon: Home,       onClick: () => navigate('/dashboard'), active: isHome },
-    { key: 'sims',  label: 'Simulations',         icon: Radar,      onClick: () => navigate('/mode-select') },
-    { key: 'red',   label: 'Red Team',            icon: Crosshair,  onClick: () => navigate('/attack-select', { state: { mode: 'red' } }) },
-    { key: 'blue',  label: 'Blue Team',           icon: ShieldCheck, onClick: () => navigate('/attack-select', { state: { mode: 'blue' } }) },
     { key: 'learn', label: 'Learning Resources',  icon: BookOpen,   onClick: () => navigate('/learn') },
     { key: 'rep',   label: 'Reports',             icon: FileText,   onClick: onReportsClick },
   ]

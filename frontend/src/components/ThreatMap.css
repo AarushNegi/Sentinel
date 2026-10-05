@@ -1,0 +1,98 @@
+/* components/ThreatMap.css */
+
+.tm-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  border-radius: 14px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 80% at 50% 40%, rgba(0,153,255,0.08) 0%, transparent 70%),
+    var(--sen-bg-2);
+  border: 1px solid var(--sen-border);
+}
+
+.tm-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,153,255,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,153,255,0.07) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(ellipse at center, black 55%, transparent 95%);
+  pointer-events: none;
+}
+
+.tm-svg {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.tm-landmass ellipse {
+  fill: rgba(0, 140, 255, 0.07);
+}
+
+.tm-link {
+  fill: none;
+  stroke-width: 1.6;
+  stroke-dasharray: 6 10;
+  animation: tm-flow 2.6s linear infinite;
+}
+
+@keyframes tm-flow {
+  to { stroke-dashoffset: -160; }
+}
+
+.tm-node-halo {
+  animation: tm-pulse 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes tm-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%       { opacity: 1;    transform: scale(1.25); }
+}
+
+.tm-node-dot {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 6px #00D9FF);
+}
+
+.tm-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tm-label {
+  position: absolute;
+  transform: translate(-50%, 10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  white-space: nowrap;
+}
+
+.tm-label-name {
+  font-size: 10px;
+  color: var(--sen-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tm-label-count {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.tm-tone-red   { color: var(--sen-red); }
+.tm-tone-cyan  { color: var(--sen-cyan); }
+.tm-tone-white { color: var(--sen-text); }
+
+@media (max-width: 1100px) {
+  .tm-label-name { display: none; }
+}

@@ -1,0 +1,56 @@
+/* components/RecommendedSimulations.css */
+
+.rsim-card {
+  background: var(--sen-card);
+  border: 1px solid var(--sen-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rsim-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.rsim-head h3 { font-size: 14px; font-weight: 700; color: var(--sen-text); margin: 0; }
+.rsim-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--sen-green); box-shadow: 0 0 6px var(--sen-green);
+}
+
+.rsim-list { display: flex; flex-direction: column; gap: 6px; }
+
+.rsim-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 10px 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+.rsim-row:hover { background: rgba(255,255,255,0.03); border-color: var(--sen-border); }
+
+.rsim-icon {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.rsim-red  { background: var(--sen-red-dim);  color: var(--sen-red); }
+.rsim-blue { background: var(--sen-blue-dim); color: var(--sen-cyan); }
+
+.rsim-info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.rsim-title { font-size: 13px; font-weight: 600; color: var(--sen-text); }
+.rsim-sub { font-size: 11px; color: var(--sen-text-dim); }
+.rsim-chevron { color: var(--sen-text-faint); flex-shrink: 0; }
+
+.rsim-empty { text-align: center; padding: 20px 10px; font-size: 12.5px; color: var(--sen-text-faint); }

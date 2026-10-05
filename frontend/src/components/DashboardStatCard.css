@@ -1,0 +1,33 @@
+/* components/DashboardStatCard.css */
+
+.dsc-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: var(--sen-card);
+  border: 1px solid var(--sen-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.dsc-card:hover { border-color: var(--sen-border-strong); transform: translateY(-2px); }
+
+.dsc-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dsc-purple { background: var(--sen-purple-dim); color: var(--sen-purple); }
+.dsc-yellow { background: var(--sen-yellow-dim); color: var(--sen-yellow); }
+.dsc-red    { background: var(--sen-red-dim);    color: var(--sen-red); }
+.dsc-blue   { background: var(--sen-blue-dim);   color: var(--sen-cyan); }
+
+.dsc-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dsc-label { font-size: 11.5px; color: var(--sen-text-dim); }
+.dsc-value { font-size: 21px; font-weight: 800; color: var(--sen-text); font-variant-numeric: tabular-nums; }
+.dsc-sub { font-size: 11px; color: var(--sen-text-faint); }
+.dsc-sub-green { color: var(--sen-green); }

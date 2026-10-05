@@ -1,0 +1,49 @@
+/* components/RecentActivity.css */
+
+.ract-card {
+  background: var(--sen-card);
+  border: 1px solid var(--sen-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.ract-head { margin-bottom: 12px; }
+.ract-head h3 { font-size: 14px; font-weight: 700; color: var(--sen-text); margin: 0; }
+
+.ract-empty {
+  text-align: center;
+  padding: 26px 10px;
+  font-size: 13px;
+  color: var(--sen-text-faint);
+  border: 1px dashed var(--sen-border);
+  border-radius: 10px;
+}
+
+.ract-list { display: flex; flex-direction: column; gap: 7px; }
+
+.ract-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--sen-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ract-row:hover { border-color: var(--sen-border-strong); background: rgba(255,255,255,0.04); }
+
+.ract-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.ract-success { background: var(--sen-green); box-shadow: 0 0 6px var(--sen-green); }
+.ract-failed  { background: var(--sen-red);   box-shadow: 0 0 6px var(--sen-red); }
+
+.ract-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.ract-title { font-size: 13px; font-weight: 600; color: var(--sen-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ract-mode { font-weight: 400; color: var(--sen-text-faint); }
+.ract-sub { font-size: 11px; color: var(--sen-text-dim); }
+.ract-time { font-size: 10.5px; color: var(--sen-text-faint); flex-shrink: 0; white-space: nowrap; }

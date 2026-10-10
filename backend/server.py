@@ -3144,6 +3144,177 @@ def blue_phishing_action(session_id):
         }), 500
 
 
+
+# ================================================================
+#  RED TEAM — RANSOMWARE SIMULATION (fictional, sandboxed)
+# ================================================================
+
+RR_HOST_IDS = ["pc-014", "lab-008", "file-01", "backup-01", "dc-01", "hr-022"]
+
+# action -> (required current stage or None, next stage or None, points)
+RR_ACTIONS = {
+    "scan_network":          {"stage": "recon",         "next": "vulnerability", "points": 100},
+    "inspect_host":          {"stage": None,             "next": None,            "points": 0},
+    "identify_vulnerability":{"stage": "vulnerability",  "next": "execution",     "points": 150},
+    "simulate_execution":    {"stage": "execution",      "next": "propagation",   "points": 150},
+    "start_propagation":     {"stage": "propagation",    "next": "compromise",    "points": 150},
+    "compromise_hosts":      {"stage": "compromise",     "next": "encryption",    "points": 150},
+    "simulate_encryption":   {"stage": "encryption",     "next": "impact",        "points": 200},
+    "assess_impact":         {"stage": "impact",         "next": None,            "points": 100},
+}
+
+
+@app.route("/api/red-ransomware/start", methods=["POST"])
+@jwt_required()
+def rr_start():
+    user_id = get_jwt_identity()
+    session = {
+        "user_id": user_id,
+        "stage": "recon",
+        "score": 0,
+        "completed_actions": [],
+        "status": "in_progress",
+        "started_at": datetime.utcnow().isoformat()
+    }
+    result = db.red_ransomware_sessions.insert_one(session)
+    return jsonify({
+        "session_id": str(result.inserted_id),
+        "score": 0,
+        "stage": "recon"
+    }), 201
+
+
+@app.route("/api/red-ransomware/<session_id>/action", methods=["POST"])
+@jwt_required()
+def rr_action(session_id):
+    try:
+        obj_id = ObjectId(session_id)
+    except InvalidId:
+        return jsonify({"error": "Invalid session ID"}), 400
+
+    session = db.red_ransomware_sessions.find_one({"_id": obj_id})
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+    if session["status"] != "in_progress":
+        return jsonify({"error": "Simulation already ended"}), 400
+
+    data = request.get_json() or {}
+    action = data.get("action")
+    host_id = data.get("host_id")
+
+    config = RR_ACTIONS.get(action)
+    if not config:
+        return jsonify({"error": "Unknown action"}), 400
+
+    completed = session.get("completed_actions", [])
+    score = session.get("score", 0)
+    stage = session.get("stage", "recon")
+
+    # Award points once per unique action per session (prevents farming by re-clicking)
+    already_done = action in completed
+    if not already_done and config["points"] > 0:
+        completed.append(action)
+        score += config["points"]
+
+    if config["next"] and not already_done:
+        stage = config["next"]
+
+    db.red_ransomware_sessions.update_one(
+        {"_id": obj_id},
+        {"$set": {"completed_actions": completed, "score": score, "stage": stage}}
+    )
+
+    response = {
+        "score": score,
+        "stage": stage,
+        "next_stage": stage
+    }
+
+    if action == "scan_network":
+        response["discovered_hosts"] = RR_HOST_IDS
+
+    return jsonify(response), 200
+
+
+@app.route("/api/red-ransomware/<session_id>/complete", methods=["POST"])
+@jwt_required()
+def rr_complete(session_id):
+    try:
+        obj_id = ObjectId(session_id)
+    except InvalidId:
+        return jsonify({"error": "Invalid session ID"}), 400
+
+    session = db.red_ransomware_sessions.find_one({"_id": obj_id})
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+
+    db.red_ransomware_sessions.update_one(
+        {"_id": obj_id},
+        {"$set": {"status": "completed", "completed_at": datetime.utcnow().isoformat()}}
+    )
+    return jsonify({"message": "Simulation marked complete"}), 200
+
+
+@app.route("/api/red-ransomware/<session_id>/report", methods=["GET"])
+@jwt_required()
+def rr_report(session_id):
+    try:
+        obj_id = ObjectId(session_id)
+    except InvalidId:
+        return jsonify({"error": "Invalid session ID"}), 400
+
+    session = db.red_ransomware_sessions.find_one({"_id": obj_id})
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+
+    actions = session.get("completed_actions", [])
+    score = session.get("score", 0)
+
+    compromised = 1 if "compromise_hosts" in actions or "simulate_execution" in actions else 0
+    encrypted = 1 if "simulate_encryption" in actions else 0
+    severity = "CRITICAL" if encrypted and score >= 700 else "HIGH" if encrypted else "MEDIUM" if compromised else "LOW"
+
+    started = session.get("started_at")
+    completed_at = session.get("completed_at")
+    duration_seconds = None
+    if started and completed_at:
+        duration_seconds = (datetime.fromisoformat(completed_at) - datetime.fromisoformat(started)).total_seconds()
+
+    report = {
+        "session_id": str(session["_id"]),
+        "mode": "red",
+        "attack": "ransomware",
+        "environment": "Northbridge Health Network (fictional)",
+        "final_stage": session.get("stage"),
+        "score": score,
+        "max_score": 1000,
+        "completed_actions": actions,
+        "compromised_hosts": compromised,
+        "encrypted_hosts": encrypted,
+        "severity": severity,
+        "duration_seconds": duration_seconds,
+        "status": session.get("status"),
+        "note": "All systems, hosts, and data in this simulation are fictional. No real exploitation or encryption occurred."
+    }
+
+    # Save to shared reports collection too, so it shows up on the Dashboard
+    db.reports.insert_one({
+        "user_id": session["user_id"],
+        "mode": "red",
+        "attack": "ransomware",
+        "guide_title": "Ransomware (Simulated Network Exercise)",
+        "result": "success" if session.get("stage") == "impact" else "incomplete",
+        "score": score,
+        "max_score": 1000,
+        "choices": [],
+        "log_lines": actions,
+        "created_at": datetime.utcnow().isoformat()
+    })
+
+    return jsonify({"report": report}), 200
+
+
+
 # ================================================================
 #  BLUE PHISHING — COMPLETE SESSION / CREATE PERMANENT REPORT
 # ================================================================
@@ -5760,3 +5931,5 @@ if __name__ == "__main__":
         port=port
 
     )
+    
+    

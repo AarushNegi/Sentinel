@@ -1,0 +1,41 @@
+/* ===========================
+   theme.css — Sentinel SOC palette
+   Shared design tokens for Login / Register / Dashboard redesign.
+   =========================== */
+
+:root {
+  --sen-bg-0: #02070D;
+  --sen-bg-1: #050B12;
+  --sen-bg-2: #07111A;
+
+  --sen-card: #0A141E;
+  --sen-card-alt: #0D1722;
+
+  --sen-border: rgba(0, 140, 255, 0.14);
+  --sen-border-strong: rgba(0, 140, 255, 0.32);
+
+  --sen-red: #FF1744;
+  --sen-red-dim: rgba(255, 23, 68, 0.16);
+
+  --sen-blue: #0099FF;
+  --sen-blue-deep: #008CFF;
+  --sen-blue-dim: rgba(0, 153, 255, 0.14);
+
+  --sen-cyan: #00D9FF;
+  --sen-cyan-dim: rgba(0, 217, 255, 0.14);
+
+  --sen-green: #00E5A0;
+  --sen-green-dim: rgba(0, 229, 160, 0.14);
+
+  --sen-purple: #B14CFF;
+  --sen-purple-dim: rgba(177, 76, 255, 0.14);
+
+  --sen-yellow: #FFB020;
+  --sen-yellow-dim: rgba(255, 176, 32, 0.14);
+
+  --sen-text: #F3F6FA;
+  --sen-text-dim: #7C8CA3;
+  --sen-text-faint: #4A5A70;
+
+  --sen-font: 'Inter', system-ui, -apple-system, sans-serif;
+}

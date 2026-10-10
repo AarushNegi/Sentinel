@@ -1,300 +1,140 @@
 /* pages/Dashboard.css */
 
-.db-page {
+.db-shell {
   min-height: 100vh;
-  background: #0a0a0f;
-  color: #fff;
-  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--sen-bg-0);
+  color: var(--sen-text);
+  font-family: var(--sen-font);
+}
+
+.db-content {
   position: relative;
+  margin-left: 260px;
+  min-height: 100vh;
   overflow: hidden;
 }
 
-.db-topbar, .db-main {
-  position: relative;
-  z-index: 1;
-}
-
-.db-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 40px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  backdrop-filter: blur(4px);
-}
-
-.db-logo {
-  font-size: 18px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.db-live-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 8px #22c55e;
-  animation: db-pulse 2s infinite;
-}
-
-@keyframes db-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.db-user-pill {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: 13px;
-  color: #9ca3af;
-}
-
-.db-role {
-  background: rgba(59,130,246,0.1);
-  color: #3b82f6;
-  padding: 3px 10px;
-  border-radius: 99px;
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
-.db-signout {
-  background: transparent;
-  border: 1px solid rgba(239,68,68,0.4);
-  color: #ef4444;
-  border-radius: 8px;
-  padding: 7px 16px;
-  font-family: inherit;
-  font-size: 12.5px;
-  cursor: pointer;
-  transition: box-shadow 0.2s;
-}
-.db-signout:hover { box-shadow: 0 0 12px rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); }
+.db-content .nb-canvas { opacity: 0.4; }
 
 .db-main {
-  max-width: 780px;
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 56px 24px;
-}
-
-.db-heading {
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin: 0 0 8px;
-}
-
-.db-sub {
-  color: #8b93a1;
-  font-size: 14.5px;
-  margin: 0 0 36px;
-}
-
-.db-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-bottom: 32px;
-}
-
-.db-stat-card {
-  background: rgba(18,18,26,0.7);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 20px;
+  padding: 28px 32px 60px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+  gap: 24px;
 }
 
-.db-stat-card:hover {
-  border-color: rgba(59,130,246,0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 0 24px rgba(59,130,246,0.12);
-}
-
-.db-stat-num {
-  font-size: 26px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-.db-stat-label {
-  font-size: 12px;
-  color: #6b7280;
-}
-
-.db-start-card {
-  width: 100%;
-  background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(239,68,68,0.08));
-  border: 1px solid rgba(59,130,246,0.3);
-  border-radius: 14px;
-  padding: 24px 28px;
+/* Welcome */
+.db-welcome {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
-  color: #fff;
-  font-family: inherit;
-  text-align: left;
-  margin-bottom: 44px;
-  transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
-  backdrop-filter: blur(8px);
-}
-.db-start-card:hover {
-  border-color: rgba(59,130,246,0.7);
-  box-shadow: 0 0 32px rgba(59,130,246,0.2);
-  transform: translateY(-2px);
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.db-start-text {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.db-welcome-text h1 {
+  font-size: 25px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
 }
+.db-welcome-accent { color: var(--sen-blue); }
 
-.db-start-label {
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.db-start-desc {
-  font-size: 13px;
-  color: #9ca3af;
-}
-
-.db-start-arrow {
-  font-size: 22px;
-  color: #3b82f6;
-  transition: transform 0.25s;
-}
-
-.db-start-card:hover .db-start-arrow {
-  transform: translateX(4px);
-}
-
-.db-activity h2 {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #6b7280;
-  margin: 0 0 14px;
-}
-
-.db-activity-empty {
-  background: rgba(18,18,26,0.7);
-  backdrop-filter: blur(8px);
-  border: 1px dashed rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 28px;
-  text-align: center;
-  color: #6b7280;
+.db-welcome-text p {
   font-size: 13.5px;
+  color: var(--sen-text-dim);
+  margin: 0;
 }
 
-/* ── Add this to the bottom of pages/Dashboard.css ── */
-
-.db-activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.db-activity-item {
+.db-role-card {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--sen-card);
+  border: 1px solid var(--sen-border);
   border-radius: 12px;
-  padding: 14px 16px;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  color: inherit;
-  width: 100%;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.db-activity-item:hover {
-  border-color: rgba(255,255,255,0.16);
-  background: rgba(255,255,255,0.05);
-}
-
-.db-activity-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  padding: 11px 18px;
   flex-shrink: 0;
 }
 
-.db-activity-success { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
-.db-activity-failed  { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
-
-.db-activity-info {
+.db-role-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--sen-blue-dim);
+  color: var(--sen-cyan);
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 0;
-}
-
-.db-activity-title {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.db-activity-mode {
-  font-weight: 400;
-  color: #6b7280;
-}
-
-.db-activity-sub {
-  font-size: 11.5px;
-  color: #9ca3af;
-}
-
-.db-activity-time {
-  font-size: 11px;
-  color: #6b7280;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.db-topbar {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
   align-items: center;
-}
-
-.db-nav {
-  display: flex;
   justify-content: center;
-  gap: 32px;
+  flex-shrink: 0;
 }
 
-.db-nav-link {
-  background: transparent;
-  border: none;
-  color: #9ca3af;
-  font-size: 13.5px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  padding: 6px 0;
-  transition: color 0.2s;
+.db-role-card div { display: flex; flex-direction: column; gap: 1px; }
+.db-role-title { font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: var(--sen-text); }
+.db-role-sub { font-size: 11px; color: var(--sen-text-dim); }
+
+/* Team cards */
+.db-teams {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
 }
 
-.db-nav-link:hover:not(:disabled) { color: #fff; }
+.tmc-glyph { opacity: 0.9; filter: drop-shadow(0 0 22px currentColor); }
+.tmc-red .tmc-glyph  { color: var(--sen-red); }
+.tmc-blue .tmc-glyph { color: var(--sen-blue); }
 
-.db-nav-link-disabled {
-  color: #374151;
-  cursor: not-allowed;
+/* Stats row */
+.db-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+/* Split section */
+.db-split {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.db-recent { display: flex; }
+.db-recent > * { flex: 1; }
+
+.db-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--sen-border);
+  font-size: 11px;
+  color: var(--sen-text-faint);
+  flex-wrap: wrap;
+}
+.db-footer span { display: flex; align-items: center; gap: 6px; }
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .db-stats { grid-template-columns: repeat(2, 1fr); }
+  .db-split { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 960px) {
+  .db-content { margin-left: 0; }
+}
+
+@media (max-width: 880px) {
+  .db-teams { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .db-main { padding: 22px 16px 40px; }
+  .db-stats { grid-template-columns: 1fr; }
+  .db-welcome { flex-direction: column; align-items: flex-start; }
 }

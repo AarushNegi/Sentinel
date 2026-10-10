@@ -1,0 +1,73 @@
+/* components/LoginStatCard.css */
+
+.lsc-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(10, 20, 30, 0.55);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--sen-border);
+  border-radius: 12px;
+  padding: 13px 14px;
+  overflow: hidden;
+}
+
+.lsc-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.lsc-green .lsc-icon { background: var(--sen-green-dim); color: var(--sen-green); }
+.lsc-red   .lsc-icon { background: var(--sen-red-dim);   color: var(--sen-red); }
+.lsc-blue  .lsc-icon { background: var(--sen-blue-dim);  color: var(--sen-cyan); }
+
+.lsc-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  z-index: 1;
+}
+
+.lsc-value {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--sen-text);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.lsc-label {
+  font-size: 10.5px;
+  color: var(--sen-text-dim);
+  white-space: nowrap;
+}
+
+.lsc-delta {
+  font-size: 10px;
+  color: var(--sen-green);
+  font-weight: 600;
+}
+
+.lsc-spark {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 22px;
+  opacity: 0.55;
+}
+.lsc-spark span {
+  width: 2.5px;
+  border-radius: 1px;
+  background: var(--sen-red);
+}
+.lsc-green .lsc-spark span { background: var(--sen-green); }
+.lsc-blue  .lsc-spark span { background: var(--sen-cyan); }

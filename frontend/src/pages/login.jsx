@@ -2,7 +2,25 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { loginUser, guestLogin } from '../services/api'
-import './Auth.css'
+import ThreatMap from '../components/ThreatMap'
+import ThreatFeed, { DEFAULT_THREAT_ROWS, timeAgo } from '../components/ThreatFeed'
+import LoginStatCard from '../components/LoginStatCard'
+import { useLiveNumber } from '../hooks/useLiveNumber'
+import {
+  Shield, Mail, Lock, Eye, EyeOff, ArrowRight, User, AlertCircle,
+  Info, ShieldCheck, Crosshair, Globe, Radio,
+} from 'lucide-react'
+import './Login.css'
+
+const EXTRA_THREAT_ROWS = [
+  { time: timeAgo(78),  type: 'Suspicious Login',      source: '77.91.10.5',    target: 'Brazil',    severity: 'Medium' },
+  { time: timeAgo(102), type: 'Malware Distribution',  source: '201.14.88.3',   target: 'Vietnam',   severity: 'High' },
+  { time: timeAgo(119), type: 'DDoS Attack',           source: '12.55.201.9',   target: 'France',    severity: 'Critical' },
+  { time: timeAgo(138), type: 'Phishing Email',        source: '88.202.17.44',  target: 'Canada',    severity: 'Medium' },
+  { time: timeAgo(166), type: 'Brute Force Login',     source: '5.188.60.21',   target: 'Japan',      severity: 'High' },
+]
+
+const EXPANDED_THREAT_ROWS = [...DEFAULT_THREAT_ROWS, ...EXTRA_THREAT_ROWS]
 
 export default function Login() {
   const navigate = useNavigate()
@@ -13,6 +31,11 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const [remember, setRemember] = useState(true)
+  const [expandFeed, setExpandFeed] = useState(false)
+
+  const threatEvents  = useLiveNumber(12428, { min: 1, max: 6, intervalMs: 3000 })
+  const phishingTries = useLiveNumber(3192,  { min: 1, max: 3, intervalMs: 4500 })
+  const countries     = useLiveNumber(86,    { min: 0, max: 1, intervalMs: 9000 })
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -49,141 +72,121 @@ export default function Login() {
   }
 
   return (
-    <div className="auth-page">
-      <div className="sim-notice">
-        <span className="sim-dot" />
-        This is a simulation environment.
-      </div>
-
-      <div className="auth-wrapper">
-        {/* LEFT */}
-        <div className="auth-left">
-          <div className="hero-title">
-            <h1>Let's Analyze</h1>
-            <h1><span className="the">the</span> <span className="attack">Attack</span></h1>
+    <div className="lg-page">
+      <div className="lg-wrapper">
+        {/* LEFT — authentication panel */}
+        <div className="lg-left">
+          <div className="lg-brand">
+            <Shield className="lg-shield-icon" size={40} strokeWidth={1.75} />
           </div>
-          <p className="hero-sub">Simulate. Detect. Analyze. Defend.</p>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
-            {error && <div className="auth-error">{error}</div>}
+          <h1 className="lg-title">
+            Welcome back, <span className="lg-accent">Analyst</span>
+          </h1>
+          <p className="lg-sub">Sign in to continue your cybersecurity training.</p>
 
-            <div className="input-group">
-              <span className="input-icon">✉</span>
-              <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={form.email}
-                onChange={handleChange}
-                autoComplete="email"
-              />
+          <form className="lg-form" onSubmit={handleSubmit}>
+            {error && (
+              <div className="lg-error">
+                <AlertCircle size={15} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="lg-field">
+              <label htmlFor="email">Email Address</label>
+              <div className="lg-input">
+                <Mail size={16} />
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="you@sentinel.local"
+                  value={form.email}
+                  onChange={handleChange}
+                  autoComplete="email"
+                />
+              </div>
             </div>
 
-            <div className="input-group">
-              <span className="input-icon">🔒</span>
-              <input
-                type={showPw ? 'text' : 'password'}
-                name="password"
-                placeholder="Password"
-                value={form.password}
-                onChange={handleChange}
-                autoComplete="current-password"
-              />
-              <button type="button" className="toggle-pw" onClick={() => setShowPw(!showPw)}>
-                {showPw ? '🙈' : '👁'}
-              </button>
+            <div className="lg-field">
+              <label htmlFor="password">Password</label>
+              <div className="lg-input">
+                <Lock size={16} />
+                <input
+                  id="password"
+                  type={showPw ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Enter your password"
+                  value={form.password}
+                  onChange={handleChange}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="lg-toggle-pw"
+                  onClick={() => setShowPw(!showPw)}
+                  aria-label={showPw ? 'Hide password' : 'Show password'}
+                >
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
-            <div className="form-meta">
-              <label className="remember-label">
+            <div className="lg-meta">
+              <label className="lg-remember">
                 <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} />
-                <span className="custom-check" />
+                <span className="lg-check" />
                 Remember me
               </label>
-              <Link to="/forgot" className="forgot-link">Forgot Password?</Link>
+              <Link to="/forgot" className="lg-link">Forgot Password?</Link>
             </div>
 
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign In to Dashboard'} →
+            <button type="submit" className="lg-btn-primary" disabled={loading}>
+              {loading ? 'Signing in…' : 'Sign In to Dashboard'} <ArrowRight size={16} />
             </button>
 
-            <div className="divider"><span>or</span></div>
+            <div className="lg-divider"><span>OR</span></div>
 
-            <div className="redirect-text">
-              Don't have an account? <Link to="/register" className="forgot-link">Create one</Link>
+            <button type="button" className="lg-btn-guest" onClick={handleGuest} disabled={loading}>
+              <User size={16} /> Continue as a guest
+            </button>
+
+            <div className="lg-redirect">
+              Don't have an account? <Link to="/register" className="lg-link">Create one</Link>
             </div>
-
-            <button type="button" className="btn-guest" onClick={handleGuest} disabled={loading}>
-              👤 Continue as a guest
-            </button>
           </form>
         </div>
 
-        {/* RIGHT */}
-        <div className="auth-right">
-          <div className="right-header">
-            <h2>Simulate. Analyze. <span className="defend">Defend.</span></h2>
-            <p>Understand the cyber kill chain through interactive simulations,<br />real-time logs, and actionable insights.</p>
+        {/* RIGHT — simulated live threat monitoring preview */}
+        <div className="lg-right">
+          <div className="lg-right-head">
+            <div className="lg-right-head-left">
+              <span className="lg-pulse-dot" />
+              <div>
+                <h2>Live Threat Simulation</h2>
+                <p>Real-time global cyber attack activity (simulated)</p>
+              </div>
+            </div>
+            <div className="lg-right-head-right">
+              <span className="lg-sim-pill"><Info size={11} /> SIMULATED LIVE FEED</span>
+              <span className="lg-live-pill"><Radio size={11} /> LIVE</span>
+            </div>
           </div>
 
-          <div className="dashboard-grid">
-            <div className="dash-card">
-              <div className="card-icon blue">⚡</div>
-              <div className="card-info">
-                <span className="card-label">Simulation Status</span>
-                <span className="card-value cyan">Running</span>
-                <span className="card-sub"><span className="dot-active" /> Active</span>
-              </div>
-            </div>
+          <ThreatMap />
 
-            <div className="dash-card shield-card">
-              <div className="shield-icon">🛡️</div>
-            </div>
+          <ThreatFeed
+            title="Live Threat Feed"
+            rows={expandFeed ? EXPANDED_THREAT_ROWS : DEFAULT_THREAT_ROWS}
+            onViewAll={() => setExpandFeed(v => !v)}
+            live
+          />
 
-            <div className="dash-card">
-              <div className="card-icon green">🛡</div>
-              <div className="card-info">
-                <span className="card-label">Threat Level</span>
-                <span className="card-value white">High</span>
-              </div>
-            </div>
-
-            <div className="dash-card">
-              <div className="card-icon red">📄</div>
-              <div className="card-info">
-                <span className="card-label">Logs Generated</span>
-                <span className="card-value red">18,392</span>
-                <span className="card-sub" style={{color:'#22c55e'}}>+2,389 today</span>
-              </div>
-            </div>
-
-            <div className="dash-card">
-              <div className="card-icon yellow">🎯</div>
-              <div className="card-info">
-                <span className="card-label">Attack Stage</span>
-                <span className="card-value yellow">Exploitation</span>
-              </div>
-            </div>
-
-            <div className="dash-card wide-card">
-              <div className="bottom-stat">
-                <div className="card-icon purple">👥</div>
-                <div className="card-info">
-                  <span className="card-label">Active Scenarios</span>
-                  <span className="card-value white">42</span>
-                  <span className="card-sub">Across all modules</span>
-                </div>
-              </div>
-              <div className="bottom-divider" />
-              <div className="bottom-stat">
-                <div className="card-icon purple">🏆</div>
-                <div className="card-info">
-                  <span className="card-label">Success Rate</span>
-                  <span className="card-value" style={{color:'#a855f7'}}>87%</span>
-                  <span className="card-sub">Average</span>
-                </div>
-              </div>
-            </div>
+          <div className="lg-stats-row">
+            <LoginStatCard icon={ShieldCheck} tone="green" value={threatEvents.toLocaleString()} label="Threat Events" delta="18% today" />
+            <LoginStatCard icon={Crosshair} tone="red" value={phishingTries.toLocaleString()} label="Phishing Attempts" delta="27% today" />
+            <LoginStatCard icon={Globe} tone="blue" value={countries.toLocaleString()} label="Countries Involved" delta="12% today" />
           </div>
         </div>
       </div>

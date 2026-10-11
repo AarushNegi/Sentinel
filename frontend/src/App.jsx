@@ -3,6 +3,7 @@ import Register from './pages/Register'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import ModeSelect from './pages/ModeSelect'
+import VASimulation from './pages/VASimulation'
 import AttackSelect from './pages/AttackSelect'
 import Guide from './pages/Guide'
 import AlertQueue from './pages/AlertQueue'
@@ -16,6 +17,7 @@ import BluePhishingSimulation from './pages/BluePhishingSimulation'
 import RedRansomwareSimulation from './pages/RedRansomwareSimulation'
 import BlueRansomwareSimulation from './pages/BlueRansomwareSimulation'
 import BlueSupplyChainSimulation from './pages/BlueSupplyChainSimulation'
+import IncidentResponse from './pages/IncidentResponse'
 import RedSupplyChainSimulation from './pages/RedSupplyChainSimulation'
 
 const ProtectedRoute = ({ children }) => {
@@ -35,11 +37,13 @@ function App() {
       <Route path="/alert-queue" element={<AlertQueue />} />
       <Route path="/simulation" element={<Simulation />} />
       <Route path="/red-phishing" element={<RedPhishingSimulation />} />
+      <Route path="/incident-response" element={<IncidentResponse />} />
       <Route path="/blue-phishing" element={<BluePhishingSimulation />} />
       <Route path="/red-ransomware" element={<RedRansomwareSimulation />} />
       <Route path="/blue-ransomware" element={<BlueRansomwareSimulation />} />
       <Route path="/red-supply-chain" element={<RedSupplyChainSimulation />} />
       <Route path="/blue-supply-chain" element={<BlueSupplyChainSimulation />} />
+      <Route path="/va-simulation" element={<VASimulation />} />
       <Route path="/soc-simulator" element={<SOCSimulator />} />
       <Route path="/outcome" element={<Outcome />} />
       <Route path="/learn" element={<Learn />} />

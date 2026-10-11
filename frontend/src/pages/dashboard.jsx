@@ -1,10 +1,31 @@
 // pages/Dashboard.jsx
 import { useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { getMyReports } from '../services/api'
 import NetworkBackground from '../components/NetworkBackground'
+import DashboardSidebar from '../components/DashboardSidebar'
+import DashboardHeader from '../components/DashboardHeader'
+import DashboardStatCard from '../components/DashboardStatCard'
+import TeamModeCard from '../components/TeamModeCard'
+import RecentActivity from '../components/RecentActivity'
+import RecommendedSimulations from '../components/RecommendedSimulations'
+import ThreatFeed, { timeAgo as clockSecondsAgo } from '../components/ThreatFeed'
+import {
+  GraduationCap, Target, Trophy, Flame, Clock, Crosshair, Info, Terminal,
+  ShieldCheck, Eye, Search, Activity,
+} from 'lucide-react'
 import './Dashboard.css'
+
+// Timestamped relative to "now" (computed once at module load, i.e. on every
+// page refresh) so the seed rows never show a stale fixed clock time.
+const LIVE_THREAT_ROWS = [
+  { time: clockSecondsAgo(0),  type: 'Phishing Email',        source: '185.226.12.41', target: 'India',          severity: 'High' },
+  { time: clockSecondsAgo(14), type: 'Brute Force Login',     source: '41.77.33.102',  target: 'United States',  severity: 'Medium' },
+  { time: clockSecondsAgo(31), type: 'Malware Distribution',  source: '103.21.244.18', target: 'Germany',        severity: 'High' },
+  { time: clockSecondsAgo(45), type: 'DDoS Attack',           source: '190.42.12.76',  target: 'Singapore',      severity: 'Critical' },
+  { time: clockSecondsAgo(62), type: 'Suspicious Login',      source: '45.67.89.12',   target: 'United Kingdom', severity: 'Medium' },
+]
 
 function useCountUp(target, duration = 1200) {
   const [value, setValue] = useState(0)
@@ -76,12 +97,28 @@ function timeAgo(iso) {
   return `${days}d ago`
 }
 
+// Real training-time rollup for the current calendar month, from each
+// report's duration_seconds. Falls back to "--" when no durations exist yet.
+function computeTrainingTimeThisMonth(reports) {
+  const now = new Date()
+  const totalSeconds = reports.reduce((sum, r) => {
+    const d = new Date(r.created_at)
+    const sameMonth = !isNaN(d) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+    const dur = typeof r.duration_seconds === 'number' ? r.duration_seconds : 0
+    return sameMonth ? sum + dur : sum
+  }, 0)
+  if (totalSeconds <= 0) return null
+  return (totalSeconds / 3600).toFixed(1)
+}
+
 export default function Dashboard() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
   const [reports, setReports] = useState([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const recentRef = useRef(null)
 
   useEffect(() => {
     getMyReports()
@@ -94,6 +131,13 @@ export default function Dashboard() {
   const successCount = reports.filter(r => r.result === 'success').length
   const accuracy     = totalCount ? Math.round((successCount / totalCount) * 100) : null
   const streak       = computeStreak(reports)
+  const trainingTime  = computeTrainingTimeThisMonth(reports)
+
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+  const thisWeekCount = reports.filter(r => {
+    const d = new Date(r.created_at)
+    return !isNaN(d) && d.getTime() >= weekAgo
+  }).length
 
   const simsCount   = useCountUp(totalCount)
   const streakCount = useCountUp(streak)
@@ -109,88 +153,125 @@ export default function Dashboard() {
     navigate('/outcome', { state: { report: mapReportForOutcome(r), reportId: r._id } })
   }
 
+  const scrollToRecent = () => {
+    recentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  const firstName = (user?.name || 'Analyst').split(' ')[0]
+  const roleLabel = user?.role === 'guest' ? 'Guest Analyst' : 'Student Analyst'
+
   return (
-    <div className="db-page">
-      <NetworkBackground variant="blue" />
+    <div className="db-shell">
+      <DashboardSidebar onLogout={handleLogout} onReportsClick={scrollToRecent} />
 
-     <header className="db-topbar">
-        <span className="db-logo">
-          Sentinel
-          <span className="db-live-dot" />
-        </span>
+      <div className="db-content">
+        <NetworkBackground variant="blue" />
 
-        <nav className="db-nav">
-          <button className="db-nav-link" onClick={() => navigate('/learn')}>Learn</button>
-          <button className="db-nav-link db-nav-link-disabled" disabled>Challenges</button>
-        </nav>
+        <DashboardHeader
+          user={user}
+          onLogout={handleLogout}
+          searchValue={search}
+          onSearchChange={setSearch}
+        />
 
-        <div className="db-user-pill">
-          <span>{user?.name}</span>
-          <span className="db-role">{user?.role}</span>
-          <button className="db-signout" onClick={handleLogout}>Sign Out</button>
-        </div>
-      </header>
-
-      <main className="db-main">
-        <h1 className="db-heading">Welcome back, {user?.name}</h1>
-        <p className="db-sub">Pick up where you left off or start a new simulation.</p>
-
-        <div className="db-stats">
-          <div className="db-stat-card">
-            <span className="db-stat-num">{simsCount}</span>
-            <span className="db-stat-label">Simulations completed</span>
-          </div>
-          <div className="db-stat-card">
-            <span className="db-stat-num">{streakCount}</span>
-            <span className="db-stat-label">Current streak</span>
-          </div>
-          <div className="db-stat-card">
-            <span className="db-stat-num">{accuracy === null ? '—' : `${accuracy}%`}</span>
-            <span className="db-stat-label">Accuracy</span>
-          </div>
-        </div>
-
-        <button className="db-start-card" onClick={() => navigate('/mode-select')}>
-          <div className="db-start-text">
-            <span className="db-start-label">Start New Simulation</span>
-            <span className="db-start-desc">Choose Red or Blue team and run a live kill chain scenario.</span>
-          </div>
-          <span className="db-start-arrow">→</span>
-        </button>
-
-        <section className="db-activity">
-          <h2>Recent Activity</h2>
-
-          {loading && (
-            <div className="db-activity-empty">Loading…</div>
-          )}
-
-          {!loading && recent.length === 0 && (
-            <div className="db-activity-empty">
-              No simulations yet — start your first one above.
+        <main className="db-main">
+          <section className="db-welcome">
+            <div className="db-welcome-text">
+              <h1>👋 Welcome back, <span className="db-welcome-accent">{firstName}!</span></h1>
+              <p>Ready to simulate, analyze, and defend against real-world cyber threats.</p>
             </div>
-          )}
-
-          {!loading && recent.length > 0 && (
-            <div className="db-activity-list">
-              {recent.map((r) => (
-                <button key={r._id} className="db-activity-item" onClick={() => openReport(r)}>
-                  <span className={`db-activity-dot db-activity-${r.result}`} />
-                  <div className="db-activity-info">
-                    <span className="db-activity-title">
-                      {r.guide_title} <span className="db-activity-mode">· {r.mode === 'red' ? 'Red Team' : 'Blue Team'}</span>
-                    </span>
-                    <span className="db-activity-sub">
-                      {r.result === 'success' ? 'Completed' : `Failed at ${r.failed_at_stage}`} · {r.score}/{r.max_score} pts
-                    </span>
-                  </div>
-                  <span className="db-activity-time">{timeAgo(r.created_at)}</span>
-                </button>
-              ))}
+            <div className="db-role-card">
+              <span className="db-role-icon"><GraduationCap size={18} /></span>
+              <div>
+                <span className="db-role-title">{roleLabel.toUpperCase()}</span>
+                <span className="db-role-sub">Cybersecurity Learner</span>
+              </div>
             </div>
-          )}
-        </section>
-      </main>
+          </section>
+
+          <section className="db-teams">
+            <TeamModeCard
+              team="red"
+              title="RED TEAM"
+              tagline="Attack. Simulate. Exploit."
+              description="Practice offensive security in a safe, controlled environment."
+              chips={['Reconnaissance', 'Exploitation', 'Privilege Escalation']}
+              chipIcons={[Search, Terminal, Crosshair]}
+              onEnter={() => navigate('/attack-select', { state: { mode: 'red' } })}
+              illustration={<Crosshair size={76} strokeWidth={1.2} className="tmc-glyph" />}
+            />
+            <TeamModeCard
+              team="blue"
+              title="BLUE TEAM"
+              tagline="Detect. Analyze. Defend."
+              description="Investigate alerts, analyze threats, and practice incident response."
+              chips={['Monitoring', 'Analysis', 'Response']}
+              chipIcons={[Eye, Activity, ShieldCheck]}
+              onEnter={() => navigate('/attack-select', { state: { mode: 'blue' } })}
+              illustration={<ShieldCheck size={76} strokeWidth={1.2} className="tmc-glyph" />}
+            />
+          </section>
+
+          <section className="db-stats">
+            <DashboardStatCard
+              icon={Target}
+              tone="purple"
+              label="Simulations Completed"
+              value={simsCount}
+              sub={`+${thisWeekCount} this week`}
+            />
+            <DashboardStatCard
+              icon={Trophy}
+              tone="yellow"
+              label="Success Rate"
+              value={accuracy === null ? '—' : `${accuracy}%`}
+              sub={totalCount ? `${successCount}/${totalCount} runs` : 'No runs yet'}
+              subTone="green"
+            />
+            <DashboardStatCard
+              icon={Flame}
+              tone="red"
+              label="Learning Streak"
+              value={`${streakCount} ${streakCount === 1 ? 'day' : 'days'}`}
+              sub={streak > 0 ? 'Keep it up!' : 'Start today'}
+            />
+            <DashboardStatCard
+              icon={Clock}
+              tone="blue"
+              label="Training Time"
+              value={trainingTime ? `${trainingTime} hrs` : '--'}
+              sub="This month"
+            />
+          </section>
+
+          <section className="db-split">
+            <ThreatFeed
+              title="Live Threat Intelligence"
+              icon={Activity}
+              dotColor="green"
+              badgeText="SIMULATED FEED"
+              rows={LIVE_THREAT_ROWS}
+              onViewAll={() => {}}
+              live
+            />
+            <RecommendedSimulations query={search} />
+          </section>
+
+          <section className="db-recent" ref={recentRef}>
+            <RecentActivity
+              reports={recent}
+              loading={loading}
+              onOpen={openReport}
+              timeAgo={timeAgo}
+            />
+          </section>
+
+          <footer className="db-footer">
+            <span><Info size={12} /> Threat examples are simulated for training purposes. No real attacks are performed.</span>
+            <span>SENTINEL · v1.0.0</span>
+          </footer>
+        </main>
+      </div>
     </div>
   )
 }

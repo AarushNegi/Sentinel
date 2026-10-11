@@ -1,0 +1,332 @@
+.va-page {
+  min-height: 100vh;
+  background: #0a0a0f;
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.va-topbar, .va-stage-rail, .va-layout {
+  position: relative;
+  z-index: 1;
+}
+
+.va-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(4px);
+}
+
+.va-back {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.va-back:hover { color: #fff; }
+
+.va-title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.va-eyebrow {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: #3b82f6;
+}
+
+.va-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.va-score-pill {
+  font-size: 13px;
+  color: #9ca3af;
+  background: #12121a;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 6px 14px;
+  border-radius: 99px;
+}
+
+.va-score-pill strong { color: #3b82f6; }
+
+.va-stage-rail {
+  display: flex;
+  align-items: center;
+  padding: 14px 32px;
+  gap: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  overflow-x: auto;
+}
+
+.va-rail-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #4b5563;
+  flex: 1;
+  min-width: 100px;
+}
+
+.va-rail-step.active { color: #3b82f6; font-weight: 600; }
+.va-rail-step.done { color: #22c55e; }
+
+.va-rail-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #374151;
+  flex-shrink: 0;
+}
+
+.va-rail-step.active .va-rail-dot { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+.va-rail-step.done .va-rail-dot { background: #22c55e; }
+
+.va-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 0;
+  min-height: 0;
+}
+
+.va-main {
+  padding: 28px 32px;
+  overflow-y: auto;
+}
+
+.va-panel h2 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.va-desc {
+  font-size: 13.5px;
+  color: #9ca3af;
+  line-height: 1.6;
+  margin: 0 0 20px;
+  max-width: 640px;
+}
+
+.va-action-btn {
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 16px;
+  transition: opacity 0.2s;
+}
+
+.va-action-btn:hover { opacity: 0.88; }
+.va-complete-btn { background: #22c55e; }
+
+.va-asset-table {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.va-table-head {
+  display: grid;
+  grid-template-columns: 70px 1fr 120px 100px 80px;
+  padding: 10px 16px;
+  background: #12121a;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.va-table-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 120px 100px 80px;
+  padding: 12px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.va-table-row:last-child { border-bottom: none; }
+
+.va-mono {
+  font-family: 'Courier New', monospace;
+  font-size: 11.5px;
+  color: #6b7280;
+}
+
+.va-finding-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.va-finding-card {
+  background: #12121a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+
+.va-finding-assigned { border-color: rgba(59,130,246,0.3); }
+.va-finding-verified { border-color: rgba(34,197,94,0.3); }
+
+.va-finding-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.va-finding-id { color: #6b7280; }
+
+.va-sev-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.va-cve-tag {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #9ca3af;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.va-risk-score {
+  margin-left: auto;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.va-finding-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.va-finding-asset {
+  font-size: 11.5px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.va-finding-desc {
+  font-size: 12.5px;
+  color: #9ca3af;
+  line-height: 1.5;
+}
+
+.va-task-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.va-task-actions button {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #d1d5db;
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.va-task-actions button:hover { border-color: #3b82f6; color: #3b82f6; }
+
+.va-task-assigned {
+  font-size: 12.5px;
+  color: #3b82f6;
+  margin-top: 8px;
+}
+
+.va-verify-btn {
+  background: transparent;
+  border: 1px solid rgba(34,197,94,0.4);
+  color: #22c55e;
+  font-size: 12px;
+  padding: 7px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+
+.va-verify-btn:hover { background: rgba(34,197,94,0.08); }
+
+.va-verified-badge {
+  font-size: 12.5px;
+  color: #22c55e;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.va-log-panel {
+  border-left: 1px solid rgba(255,255,255,0.06);
+  padding: 20px 16px;
+  background: #0a0a0f;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.va-log-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+}
+
+.va-log-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.va-log-empty {
+  font-size: 12px;
+  color: #4b5563;
+  font-style: italic;
+}
+
+.va-log-line {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #9ca3af;
+  line-height: 1.6;
+  border-left: 2px solid rgba(59,130,246,0.3);
+  padding-left: 8px;
+}

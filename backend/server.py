@@ -5868,7 +5868,6 @@ def get_learn_categories():
         )
     )
 
-
     return jsonify({
 
         "categories":

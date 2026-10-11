@@ -2,6 +2,10 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { registerUser, loginUser } from '../services/api'
+import {
+  Shield, User, Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle,
+  Radar, ShieldCheck, FileText, Users,
+} from 'lucide-react'
 import './Auth.css'
 
 export default function Register() {
@@ -31,7 +35,7 @@ export default function Register() {
   }
 
   const strengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong']
-  const strengthColor = ['', '#ef4444', '#eab308', '#3b82f6', '#22c55e']
+  const strengthColor = ['', '#FF1744', '#FFB020', '#0099FF', '#00E5A0']
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -54,60 +58,71 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <div className="sim-notice">
-        <span className="sim-dot" />
-        This is a simulation environment.
-      </div>
-
       <div className="auth-wrapper">
         {/* LEFT */}
         <div className="auth-left">
-          <div className="hero-title">
-            <h1>Create Your</h1>
-            <h1><span className="the">Sentinel</span> <span className="attack">Account</span></h1>
+          <div className="auth-brand">
+            <Shield className="auth-shield-icon" size={36} strokeWidth={1.75} />
           </div>
-          <p className="hero-sub">Join the platform. Start simulating. Start learning.</p>
+
+          <h1 className="auth-title">
+            Join <span className="auth-accent">Sentinel</span>
+          </h1>
+          <p className="auth-sub">Create your account and start simulating today.</p>
 
           <form className="auth-form" onSubmit={handleSubmit}>
-            {error && <div className="auth-error">{error}</div>}
+            {error && (
+              <div className="auth-error">
+                <AlertCircle size={15} />
+                <span>{error}</span>
+              </div>
+            )}
 
-            <div className="input-group">
-              <span className="input-icon">👤</span>
-              <input
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                value={form.name}
-                onChange={handleChange}
-              />
+            <div className="auth-field">
+              <label>Full Name</label>
+              <div className="auth-input">
+                <User size={16} />
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Jane Analyst"
+                  value={form.name}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            <div className="input-group">
-              <span className="input-icon">✉</span>
-              <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={form.email}
-                onChange={handleChange}
-              />
+            <div className="auth-field">
+              <label>Email Address</label>
+              <div className="auth-input">
+                <Mail size={16} />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="you@sentinel.local"
+                  value={form.email}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            <div className="input-group">
-              <span className="input-icon">🔒</span>
-              <input
-                type={showPw ? 'text' : 'password'}
-                name="password"
-                placeholder="Password"
-                value={form.password}
-                onChange={handleChange}
-              />
-              <button type="button" className="toggle-pw" onClick={() => setShowPw(!showPw)}>
-                {showPw ? '🙈' : '👁'}
-              </button>
+            <div className="auth-field">
+              <label>Password</label>
+              <div className="auth-input">
+                <Lock size={16} />
+                <input
+                  type={showPw ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Create a password"
+                  value={form.password}
+                  onChange={handleChange}
+                />
+                <button type="button" className="auth-toggle-pw" onClick={() => setShowPw(!showPw)}>
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
-            {/* Password strength */}
             {form.password && (
               <div className="strength-wrap">
                 <div className="strength-bar">
@@ -122,45 +137,48 @@ export default function Register() {
               </div>
             )}
 
-            <div className="input-group">
-              <span className="input-icon">🔒</span>
-              <input
-                type="password"
-                name="confirm"
-                placeholder="Confirm Password"
-                value={form.confirm}
-                onChange={handleChange}
-              />
+            <div className="auth-field">
+              <label>Confirm Password</label>
+              <div className="auth-input">
+                <Lock size={16} />
+                <input
+                  type="password"
+                  name="confirm"
+                  placeholder="Re-enter password"
+                  value={form.confirm}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
 
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Creating account…' : 'Create Account'} →
+            <button type="submit" className="auth-btn-primary" disabled={loading}>
+              {loading ? 'Creating account…' : 'Create Account'} <ArrowRight size={16} />
             </button>
 
-            <div className="divider"><span>or</span></div>
+            <div className="auth-divider"><span>OR</span></div>
 
-            <div className="redirect-text">
-              Already have an account? <Link to="/login" className="forgot-link">Sign In</Link>
+            <div className="auth-redirect">
+              Already have an account? <Link to="/login" className="auth-link">Sign In</Link>
             </div>
           </form>
         </div>
 
         {/* RIGHT */}
         <div className="auth-right">
-          <div className="right-header">
-            <h2>Simulate. Analyze. <span className="defend">Defend.</span></h2>
-            <p>Understand the cyber kill chain through interactive simulations,<br />real-time logs, and actionable insights.</p>
+          <div className="auth-right-header">
+            <h2>Train like a real <span className="auth-right-accent">SOC analyst.</span></h2>
+            <p>Live kill-chain simulations, real-time logs, and scored outcomes built for learning.</p>
           </div>
 
           <div className="feature-grid">
             {[
-              { icon: '⚡', title: 'Live Simulations', desc: 'Run real attack scenarios in a safe, controlled environment.' },
-              { icon: '🛡️', title: 'Threat Analysis', desc: 'Analyze threats with visual dashboards and kill chain breakdowns.' },
-              { icon: '📄', title: 'Real-Time Logs', desc: 'Watch live attack logs scroll in a terminal-style feed.' },
-              { icon: '👥', title: 'Team Collaboration', desc: 'Work with your team on shared scenarios and reports.' },
+              { icon: Radar,       title: 'Live Simulations', desc: 'Run real attack scenarios in a safe, controlled environment.' },
+              { icon: ShieldCheck, title: 'Threat Analysis',  desc: 'Analyze threats with visual dashboards and kill chain breakdowns.' },
+              { icon: FileText,    title: 'Real-Time Logs',   desc: 'Watch live attack logs scroll in a terminal-style feed.' },
+              { icon: Users,       title: 'Track Progress',   desc: 'Build a streak, climb your accuracy, and review every report.' },
             ].map((f, i) => (
               <div key={i} className="feature-card">
-                <div className="feature-icon">{f.icon}</div>
+                <div className="feature-icon"><f.icon size={18} /></div>
                 <div>
                   <div className="feature-title">{f.title}</div>
                   <div className="feature-desc">{f.desc}</div>

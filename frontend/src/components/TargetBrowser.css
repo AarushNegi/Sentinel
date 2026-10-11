@@ -1,0 +1,307 @@
+/* components/TargetBrowser.css */
+
+.tb-browser {
+  margin-top: 22px;
+  border: 1px solid #2a2d37;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #08090e;
+  position: relative;
+  transition: filter 0.4s ease, opacity 0.4s ease;
+}
+
+.tb-browser.tb-dimmed { filter: grayscale(0.6) brightness(0.5); }
+
+.tb-closed-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(5,6,11,0.55);
+  color: #c9ccd3;
+  animation: tb-closed-in 0.3s ease both;
+}
+.tb-closed-overlay svg { color: #656b78; }
+.tb-closed-overlay strong { font-size: 13px; letter-spacing: 0.02em; }
+@keyframes tb-closed-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.tb-bar {
+  height: 38px;
+  background: #11131a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+}
+.tb-bar > span { font-size: 11px; color: #626875; }
+.tb-url {
+  flex: 1;
+  margin-left: 6px;
+  background: #090a0e;
+  border: 1px solid #22252e;
+  border-radius: 4px;
+  color: #8de0a8;
+  font-size: 10.5px;
+  padding: 6px 10px;
+  font-family: monospace;
+}
+
+.tb-banner-strip {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-align: center;
+  color: #ff8888;
+  background: rgba(255,69,69,0.08);
+  border-bottom: 1px solid rgba(255,69,69,0.2);
+  padding: 7px 12px;
+}
+.tb-browser.banking .tb-banner-strip { color: #6be0a3; background: rgba(47,191,138,0.08); border-color: rgba(47,191,138,0.2); }
+
+.tb-page {
+  padding: 30px 20px 36px;
+  text-align: center;
+  min-height: 300px;
+}
+
+.tb-loading {
+  color: #656b78;
+  font-size: 13px;
+  padding: 100px 0;
+}
+
+/* Banking variant — navy/green trust palette instead of social blue/purple */
+.tb-browser.banking .tb-page { background: linear-gradient(180deg, #060c0a, #08090e); }
+.tb-logo-bank {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #2fbf8a;
+}
+.tb-browser.banking .tb-login-btn { background: #0f7a4d; }
+
+.tb-trust-badge {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 10.5px;
+  color: #545967;
+}
+
+.tb-logo {
+  font-size: 22px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #3b82f6, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 6px;
+}
+
+.tb-page h3,
+.tb-login-panel h3 { font-size: 14px; color: #e3e5ea; margin-bottom: 20px; }
+
+.tb-field {
+  max-width: 300px;
+  margin: 0 auto 10px;
+  text-align: left;
+}
+.tb-field span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #656b78;
+  margin-bottom: 4px;
+}
+.tb-input {
+  background: #11131a;
+  border: 1px solid #2a2d37;
+  border-radius: 5px;
+  padding: 11px 12px;
+  color: #e3e5ea;
+  font-family: monospace;
+  font-size: 13px;
+  min-height: 18px;
+  text-align: left;
+}
+.tb-caret { animation: tb-blink 1s step-end infinite; color: #656b78; }
+@keyframes tb-blink { 50% { opacity: 0; } }
+
+.tb-login-btn {
+  max-width: 300px;
+  width: 100%;
+  margin-top: 14px;
+  background: linear-gradient(90deg, #3b82f6, #6366f1);
+  border: 0;
+  color: white;
+  padding: 12px;
+  border-radius: 5px;
+  font-weight: 800;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* Classic glossy "Web 2.0" button for the social variant specifically */
+.tb-browser.social .tb-login-btn {
+  position: relative;
+  background: linear-gradient(180deg, #4c6ca8, #2f4b7c);
+  border: 1px solid #243a60;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 1px 2px rgba(0,0,0,0.4);
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
+}
+
+.tb-error {
+  max-width: 300px;
+  margin: 16px auto 0;
+  color: #ff8888;
+  font-size: 12px;
+  line-height: 1.6;
+  border: 1px solid rgba(255,69,69,0.3);
+  background: rgba(255,69,69,0.06);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.tb-links {
+  max-width: 300px;
+  margin: 18px auto 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: #545967;
+}
+
+/* ── Classic social-network nav bar (generic "Web 2.0" era convention,
+   not any specific real platform's trade dress) ───────────────────── */
+
+.tb-social-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  background: linear-gradient(180deg, #2a3f6b, #1f3156);
+  border-bottom: 1px solid #16213d;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.tb-social-nav-logo {
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+}
+
+.tb-social-nav-search {
+  flex: 1;
+  max-width: 260px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: rgba(255,255,255,0.6);
+  font-size: 11px;
+}
+
+.tb-social-nav-icons {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255,255,255,0.75);
+  flex-shrink: 0;
+}
+
+.tb-social-nav-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: #4a6198;
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ── Social two-column layout (marketing + login panel) ──────────── */
+
+.tb-social-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  min-height: 420px;
+}
+
+.tb-marketing {
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid #1c1f27;
+  background: radial-gradient(ellipse 80% 60% at 30% 20%, rgba(59,130,246,0.08), transparent 70%);
+}
+
+.tb-marketing .tb-logo { margin-bottom: 18px; font-size: 26px; }
+
+.tb-collage {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+  max-width: 280px;
+}
+
+.tb-tile {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.tb-tile-a { background: #3b5fa0; }
+.tb-tile-b { background: #d97642; margin-top: 16px; }
+.tb-tile-c { background: #c74d6b; }
+.tb-tile-d { background: #7a5ca8; margin-top: 16px; }
+
+.tb-marketing-copy {
+  color: #9da1ab;
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+.tb-login-panel {
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.tb-login-panel .tb-field,
+.tb-login-panel .tb-login-btn,
+.tb-login-panel .tb-error,
+.tb-login-panel .tb-links {
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+@media (max-width: 640px) {
+  .tb-social-layout { grid-template-columns: 1fr; }
+  .tb-marketing { border-right: none; border-bottom: 1px solid #1c1f27; }
+}

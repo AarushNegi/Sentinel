@@ -10,6 +10,7 @@ import Landing from './pages/Landing'
 import SOCSimulator from './pages/SOCSimulator'
 import Outcome from './pages/Outcome'
 import Learn from './pages/Learn'
+import ComingSoon from './pages/ComingSoon'
 import Simulation from './pages/Simulation'
 import RedPhishingSimulation from './pages/RedPhishingSimulation'
 import BluePhishingSimulation from './pages/BluePhishingSimulation'
@@ -20,7 +21,7 @@ import RedSupplyChainSimulation from './pages/RedSupplyChainSimulation'
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token')
-  return token ? children : <Navigate to="/login" />
+  return token ? children : <Navigate to="/login" replace />
 }
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
       <Route path="/blue-supply-chain" element={<BlueSupplyChainSimulation />} />
       <Route path="/soc-simulator" element={<SOCSimulator />} />
       <Route path="/outcome" element={<Outcome />} />
+      <Route path="/coming-soon/:slug" element={<ComingSoon />} />
       <Route path="/learn" element={<Learn />} />
       <Route path="/learn/:slug" element={<Learn />} />
       <Route path="/dashboard" element={
@@ -50,7 +52,7 @@ function App() {
         </ProtectedRoute>
       } />
       {/* Catch all */}
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

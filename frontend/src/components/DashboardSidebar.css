@@ -24,12 +24,23 @@
 }
 
 .dsb-logo-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   flex-shrink: 0;
-  background: linear-gradient(135deg, var(--sen-red) 0%, var(--sen-yellow) 35%, var(--sen-green) 65%, var(--sen-blue) 100%);
+  overflow: hidden;
+  background: #000;
   box-shadow: 0 0 14px rgba(0,153,255,0.3);
+}
+/* The logo artwork occupies the middle of a square canvas, so it's scaled
+   up to fill the tile. */
+.dsb-logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.75);
+  transform-origin: 50% 53%;
+  display: block;
 }
 
 .dsb-brand-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }

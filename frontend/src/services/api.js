@@ -29,6 +29,9 @@ export const saveSimulationReport = (data) => API.post('/api/simulation/report',
 export const getMyReports         = ()     => API.get('/api/simulation/reports')
 export const getReport            = (id)   => API.get(`/api/simulation/report/${id}`)
 
+// Red Team — Phishing (dedicated simulation)
+export const completeRedPhishing = (data) => API.post('/api/red-phishing/complete', data)
+
 // Kill Chain
 export const getKillChain = (simulationId) => API.get(`/api/killchain/${simulationId}`)
 

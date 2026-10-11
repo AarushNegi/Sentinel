@@ -1,0 +1,40 @@
+/* components/SimulatedLinkBuilder.css */
+
+.sl-builder {
+  margin-top: 22px;
+  border: 1px solid #292c36;
+  background: #090a10;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.sl-field {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: center;
+  padding: 12px 17px;
+  border-bottom: 1px solid #20232b;
+  gap: 10px;
+}
+.sl-field:last-child { border-bottom: none; }
+.sl-field span { color: #656b78; font-size: 9px; letter-spacing: 1px; }
+.sl-field strong { font-size: 13px; color: #c9ccd3; }
+.sl-field input {
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: white;
+  font: inherit;
+  font-size: 13px;
+}
+
+.sl-generated {
+  margin-top: 16px;
+  border: 1px solid #3d414d;
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: #0b0c13;
+}
+.sl-generated span { display: block; font-size: 9px; letter-spacing: 1px; color: #656b78; margin-bottom: 6px; }
+.sl-generated strong { font-size: 13.5px; color: #ff8888; font-family: monospace; word-break: break-all; }
+

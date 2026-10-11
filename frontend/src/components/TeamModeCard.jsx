@@ -2,7 +2,7 @@
 import { ArrowRight } from 'lucide-react'
 import './TeamModeCard.css'
 
-export default function TeamModeCard({ team, title, tagline, description, chips, chipIcons, onEnter, illustration }) {
+export default function TeamModeCard({ team, title, tagline, description, chips, chipIcons, onEnter, illustration, cta }) {
   return (
     <div className={`tmc-card tmc-${team}`}>
       <div className="tmc-text">
@@ -23,7 +23,7 @@ export default function TeamModeCard({ team, title, tagline, description, chips,
         </div>
 
         <button className="tmc-btn" onClick={onEnter}>
-          {title === 'RED TEAM' ? 'Enter Red Team' : 'Enter Blue Team'} <ArrowRight size={15} />
+          {cta ?? (title === 'RED TEAM' ? 'Enter Red Team' : 'Enter Blue Team')} <ArrowRight size={15} />
         </button>
       </div>
 

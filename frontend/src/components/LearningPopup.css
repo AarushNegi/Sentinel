@@ -1,0 +1,55 @@
+/* components/LearningPopup.css */
+
+.lp-popup {
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  animation: lp-in 0.25s ease both;
+}
+
+@keyframes lp-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.lp-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.lp-dismiss {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  display: flex;
+  padding: 2px;
+}
+.lp-dismiss:hover { opacity: 1; }
+
+.lp-body { color: #c9ccd3; }
+
+.lp-hint {
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.3);
+  color: #7cb3ff;
+}
+.lp-warning {
+  background: rgba(255,69,69,0.08);
+  border: 1px solid rgba(255,69,69,0.3);
+  color: #ff8888;
+}
+.lp-learning {
+  background: rgba(83,216,138,0.08);
+  border: 1px solid rgba(83,216,138,0.3);
+  color: #6be0a3;
+}

@@ -1,4 +1,5 @@
 // components/DashboardSidebar.jsx
+import logo from '../assets/logo.jpeg'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Home, BookOpen, FileText, User, Settings, LogOut,
@@ -24,7 +25,7 @@ export default function DashboardSidebar({ onLogout, onReportsClick }) {
   return (
     <aside className="dsb-sidebar">
       <div className="dsb-brand">
-        <div className="dsb-logo-mark" aria-hidden />
+        <div className="dsb-logo-mark"><img src={logo} alt="Sentinel" draggable={false} /></div>
         <div className="dsb-brand-text">
           <span className="dsb-brand-name">SENTINEL</span>
           <span className="dsb-brand-tagline">CYBERSECURITY TRAINING<br />SIMULATION PLATFORM</span>

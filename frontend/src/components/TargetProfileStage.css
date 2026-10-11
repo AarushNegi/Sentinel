@@ -1,0 +1,81 @@
+/* components/TargetProfileStage.css */
+
+.tp-checklist {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tp-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 14px;
+  border: 1px solid #292c36;
+  background: #0b0c13;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #c9ccd3;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.tp-item:hover { border-color: #3d414d; }
+.tp-item.checked { border-color: #ff4545; background: rgba(255,69,69,0.06); color: #fff; }
+
+.tp-item input { display: none; }
+
+.tp-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid #3d414d;
+  flex-shrink: 0;
+  position: relative;
+}
+.tp-item.checked .tp-box {
+  background: #ff4545;
+  border-color: #ff4545;
+}
+.tp-item.checked .tp-box::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 5px;
+  width: 4px; height: 8px;
+  border: 2px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
+
+.tp-selected {
+  margin-top: 20px;
+  border: 1px dashed #3d414d;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.tp-selected-label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #656b78;
+  margin-bottom: 8px;
+}
+
+.tp-selected-empty { color: #545967; font-size: 12.5px; }
+
+.tp-selected-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tp-chip {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ff8888;
+  background: rgba(255,69,69,0.1);
+  border: 1px solid rgba(255,69,69,0.3);
+  border-radius: 99px;
+  padding: 4px 10px;
+}

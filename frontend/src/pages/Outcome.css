@@ -39,6 +39,12 @@
   border: 1px solid rgba(255,77,77,0.25);
 }
 
+.result-badge.partial {
+  color: #f2c94c;
+  background: rgba(242,201,76,0.10);
+  border: 1px solid rgba(242,201,76,0.25);
+}
+
 .outcome-header h1 {
   margin: 0 0 28px;
   font-size: 27px;

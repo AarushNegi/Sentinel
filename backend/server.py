@@ -20,6 +20,11 @@ import bcrypt
 import os
 import uuid
 
+from blue_phishing import engine as blue_engine
+from blue_phishing import scenario_schema as blue_schema
+from blue_phishing import templates as blue_templates
+from ai import scenario_generator as blue_ai
+
 
 # ── Load .env ────────────────────────────────────────────────────
 load_dotenv()
@@ -64,7 +69,18 @@ def complete_red_phishing():
         user_id = get_jwt_identity()
 
         target = data.get("target", {})
-        credential = data.get("credential", {})
+        campaign = data.get("campaign", {})
+
+        # NOTE: no password is ever accepted or stored here. Only a fixed,
+        # fictional training account is tracked — never a real credential.
+        credential_capture = None
+        if data.get("credentialSubmitted"):
+            credential_capture = {
+                "username": data.get("targetAccount"),
+                "credential_submission": True,
+                "credential_type": "simulated",
+                "source": campaign.get("simulatedLink"),
+            }
 
         report = {
 
@@ -74,6 +90,8 @@ def complete_red_phishing():
 
             "attack": "phishing",
 
+            "guide_title": "Red Team — FaceWorld Phishing",
+
             "target": {
                 "id": target.get("id"),
                 "name": target.get("name"),
@@ -82,14 +100,17 @@ def complete_red_phishing():
                 "email": target.get("email"),
             },
 
-            "credential_capture": {
-                "username": credential.get("username"),
-                "password": credential.get("password"),
-                "source": credential.get("source"),
-                "captured_at": credential.get("capturedAt"),
-            },
+            "credential_capture": credential_capture,
+
+            "campaign": campaign,
+
+            "campaign_analysis": data.get("campaignAnalysis", {}),
+
+            "defender_indicators": data.get("indicators", []),
 
             "score": data.get("score", 0),
+
+            "max_score": data.get("maxScore", 1025),
 
             "duration_seconds": data.get(
                 "durationSeconds",
@@ -101,6 +122,10 @@ def complete_red_phishing():
                 []
             ),
 
+            "total_stages": data.get("totalStages", 7),
+
+            "failed_at_stage": data.get("failedAtStage"),
+
             "choices": data.get(
                 "choices",
                 []
@@ -111,7 +136,7 @@ def complete_red_phishing():
                 []
             ),
 
-            "result": "success",
+            "result": data.get("result", "success"),
 
             "created_at": datetime.now(timezone.utc),
         }
@@ -1741,2142 +1766,498 @@ def get_red_ransomware_report(session_id):
 
 
 # ================================================================
-#  BLUE TEAM — PHISHING INCIDENT RESPONSE
+#  BLUE TEAM — PHISHING INCIDENT RESPONSE (AI-driven scenarios)
 # ================================================================
+#
+#  Scenario generation lives in ai/scenario_generator.py (local Ollama
+#  model with validated template fallback); all simulation rules and
+#  scoring are in blue_phishing/engine.py. The routes below only handle
+#  authentication, ownership, persistence and serialisation. Ground truth
+#  is stored on the session but never serialised to the browser until the
+#  incident is closed and the report is generated.
+
+BLUE_MAX_SCORE = blue_engine.MAX_SCORE
+BLUE_STAGES = blue_engine.STAGES
+BLUE_SCHEMA_VERSION = blue_schema.SCHEMA_VERSION
+BLUE_MAX_BODY_BYTES = 8 * 1024
+
+if os.getenv("BLUE_PHISHING_WARMUP", "true").strip().lower() not in ("0", "false", "no", "off"):
+    # Load the local model in the background so the first incident is fast.
+    blue_ai.warm_up_in_background()
+
+
+def _blue_error(message, status, **extra):
+    return jsonify({"success": False, "error": message, **extra}), status
+
+
+def _blue_aware(value):
+    if value is not None and value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value
+
+
+def _blue_elapsed(session, end=None):
+    started = _blue_aware(session.get("started_at"))
+    end = _blue_aware(end or session.get("completed_at")) or datetime.now(timezone.utc)
+    if not started:
+        return 0
+    return max(0, int((end - started).total_seconds()))
+
+
+def _blue_is_current(session):
+    """True for sessions created by the scenario engine (not the legacy fixed one)."""
+    return bool(session) and session.get("schema_version") == BLUE_SCHEMA_VERSION \
+        and "scenario" in session and "sim" in session
+
+
+def _blue_generation_public(session):
+    gen = session.get("generation") or {}
+    return {
+        "source": gen.get("source", "template"),
+        "model": gen.get("model"),
+        "fallback": bool(gen.get("fallback")),
+        "fallback_reason": gen.get("fallback_reason"),
+        "duration_ms": gen.get("duration_ms", 0),
+    }
+
+
+def _blue_view(session, **extra):
+    """Analyst-visible payload for a session (no ground truth)."""
+    view = blue_engine.public_view(
+        session["scenario"], session["sim"], session["timeline"],
+        elapsed_seconds=_blue_elapsed(session))
+    view.update({
+        "success": True,
+        "session_id": str(session["_id"]),
+        "generation": _blue_generation_public(session),
+        "elapsed_seconds": _blue_elapsed(session),
+    })
+    view.update(extra)
+    return view
+
+
+def _blue_find_session(session_id, user_id):
+    try:
+        object_id = ObjectId(session_id)
+    except (InvalidId, TypeError):
+        return None, None, _blue_error("Invalid simulation session.", 400)
+    session = db.blue_phishing_sessions.find_one({"_id": object_id, "user_id": user_id})
+    if not session:
+        return None, None, _blue_error("Simulation session not found.", 404)
+    return object_id, session, None
+
+
+def _blue_persist_fields(session_scenario, sim, timeline, elapsed):
+    """Mongo fields that mirror the engine state (incl. legacy-compatible ones)."""
+    view = blue_engine.public_view(session_scenario, sim, timeline, elapsed)
+    return {
+        "sim": sim,
+        "timeline": timeline,
+        "events": view["events"],
+        "state": view["state"],
+        "stage": view["stage"],
+        "score": view["score"],
+        "score_breakdown": view["score_breakdown"],
+        "incident": view["incident"],
+    }
+
+
+@app.route("/api/blue-phishing/ai-status", methods=["GET"])
+@jwt_required()
+def blue_phishing_ai_status():
+    status = blue_ai.ollama_status()
+    status.pop("base_url", None)   # no infrastructure details to the browser
+    return jsonify({"success": True, **status}), 200
+
 
-BLUE_MAX_SCORE = 1000
-
-
-BLUE_STAGES = [
-    "alert",
-    "email",
-    "ioc",
-    "user",
-    "containment",
-    "remediation",
-    "closure",
-]
-
-
-BLUE_INCIDENT = {
-
-    "id":
-        "PHISH-2026-001",
-
-    "severity":
-        "HIGH",
-
-    "type":
-        "Credential Phishing",
-
-    "target": {
-
-        "id":
-            "sarah",
-
-        "name":
-            "Sarah Mitchell",
-
-        "role":
-            "Finance Manager",
-
-        "department":
-            "Finance",
-
-        "email":
-            "sarah.mitchell@acme.test",
-
-        "endpoint":
-            "FIN-WS-042",
-    },
-
-    "email": {
-
-        "sender":
-            "billing@acme-vendor.test",
-
-        "recipient":
-            "sarah.mitchell@acme.test",
-
-        "subject":
-            "URGENT — Invoice Payment Required",
-
-        "attachment":
-            "Invoice_84721.zip",
-
-        "url":
-            "https://vendor-login.acme.test/verify",
-    },
-
-    "ioc": {
-
-        "domain":
-            "vendor-login.acme.test",
-
-        "ip":
-            "198.51.100.42",
-
-        "reputation":
-            "MALICIOUS",
-    },
-}
-
-
-BLUE_INITIAL_STATE = {
-
-    "emailInspected":
-        False,
-
-    "headersInspected":
-        False,
-
-    "urlInspected":
-        False,
-
-    "siemSearched":
-        False,
-
-    "userInvestigated":
-        False,
-
-    "endpointInvestigated":
-        False,
-
-    "emailQuarantined":
-        False,
-
-    "domainBlocked":
-        False,
-
-    "sessionRevoked":
-        False,
-
-    "endpointIsolated":
-        False,
-
-    "accountReset":
-        False,
-
-    "incidentClosed":
-        False,
-}
-
-
-BLUE_ACTIONS = {
-
-    "inspect_email": {
-
-        "state":
-            "emailInspected",
-
-        "points":
-            50,
-
-        "message":
-            "Email artifact inspected",
-
-        "stage":
-            "email",
-    },
-
-    "inspect_headers": {
-
-        "state":
-            "headersInspected",
-
-        "points":
-            75,
-
-        "message":
-            "Suspicious header indicators identified",
-
-        "stage":
-            "email",
-    },
-
-    "inspect_url": {
-
-        "state":
-            "urlInspected",
-
-        "points":
-            100,
-
-        "message":
-            "Malicious IOC identified",
-
-        "stage":
-            "ioc",
-    },
-
-    "search_siem": {
-
-        "state":
-            "siemSearched",
-
-        "points":
-            100,
-
-        "message":
-            "SIEM correlation completed",
-
-        "stage":
-            "user",
-    },
-
-    "investigate_user": {
-
-        "state":
-            "userInvestigated",
-
-        "points":
-            75,
-
-        "message":
-            "User activity investigated",
-
-        "stage":
-            "user",
-    },
-
-    "investigate_endpoint": {
-
-        "state":
-            "endpointInvestigated",
-
-        "points":
-            75,
-
-        "message":
-            "Endpoint telemetry investigated",
-
-        "stage":
-            "containment",
-    },
-
-    "quarantine_email": {
-
-        "state":
-            "emailQuarantined",
-
-        "points":
-            100,
-
-        "message":
-            "Phishing email contained",
-
-        "stage":
-            "containment",
-    },
-
-    "block_domain": {
-
-        "state":
-            "domainBlocked",
-
-        "points":
-            100,
-
-        "message":
-            "Malicious domain blocked",
-
-        "stage":
-            "containment",
-    },
-
-    "revoke_session": {
-
-        "state":
-            "sessionRevoked",
-
-        "points":
-            100,
-
-        "message":
-            "Suspicious session revoked",
-
-        "stage":
-            "containment",
-    },
-
-    "isolate_endpoint": {
-
-        "state":
-            "endpointIsolated",
-
-        "points":
-            75,
-
-        "message":
-            "Endpoint isolated",
-
-        "stage":
-            "remediation",
-    },
-
-    "reset_account": {
-
-        "state":
-            "accountReset",
-
-        "points":
-            100,
-
-        "message":
-            "Account credentials reset",
-
-        "stage":
-            "remediation",
-    },
-
-    "close_incident": {
-
-        "state":
-            "incidentClosed",
-
-        "points":
-            80,
-
-        "message":
-            "Incident successfully closed",
-
-        "stage":
-            "closure",
-    },
-}
-
-
-def blue_add_event(events, message):
-
-    timestamp = datetime.now().strftime(
-        "%H:%M:%S"
-    )
-
-    events.append(
-        f"[{timestamp}] {message}"
-    )
-
-
-def blue_calculate_stage(state):
-
-    """
-    Determine the furthest stage the analyst
-    has legitimately reached.
-    """
-
-    if state.get("incidentClosed"):
-        return "closure"
-
-    if state.get("accountReset"):
-        return "remediation"
-
-    if (
-        state.get("emailQuarantined")
-        and state.get("domainBlocked")
-        and state.get("sessionRevoked")
-        and state.get("endpointIsolated")
-    ):
-        return "remediation"
-
-    if (
-        state.get("userInvestigated")
-        and state.get("endpointInvestigated")
-    ):
-        return "containment"
-
-    if state.get("siemSearched"):
-        return "user"
-
-    if state.get("urlInspected"):
-        return "ioc"
-
-    if state.get("emailInspected"):
-        return "email"
-
-    return "alert"
-
-
-def blue_action_allowed(state, action):
-
-    """
-    Server-side validation of the
-    investigation workflow.
-    """
-
-    if action == "inspect_email":
-
-        return True, None
-
-
-    if action == "inspect_headers":
-
-        if not state.get("emailInspected"):
-
-            return (
-                False,
-                "Inspect the email before examining its headers."
-            )
-
-
-    elif action == "inspect_url":
-
-        if not state.get("emailInspected"):
-
-            return (
-                False,
-                "Inspect the suspicious email first."
-            )
-
-
-    elif action == "search_siem":
-
-        if not state.get("urlInspected"):
-
-            return (
-                False,
-                "Identify the URL / IOC before correlating it in SIEM."
-            )
-
-
-    elif action == "investigate_user":
-
-        if not state.get("siemSearched"):
-
-            return (
-                False,
-                "Complete SIEM correlation before investigating the user."
-            )
-
-
-    elif action == "investigate_endpoint":
-
-        if not state.get("userInvestigated"):
-
-            return (
-                False,
-                "Investigate the affected user before inspecting the endpoint."
-            )
-
-
-    elif action == "quarantine_email":
-
-        if not state.get("emailInspected"):
-
-            return (
-                False,
-                "Inspect the suspicious email before quarantining it."
-            )
-
-
-    elif action == "block_domain":
-
-        if not state.get("urlInspected"):
-
-            return (
-                False,
-                "Identify the malicious IOC before blocking the domain."
-            )
-
-
-    elif action == "revoke_session":
-
-        if not state.get("userInvestigated"):
-
-            return (
-                False,
-                "Investigate the user before revoking the suspicious session."
-            )
-
-
-    elif action == "isolate_endpoint":
-
-        if not state.get("endpointInvestigated"):
-
-            return (
-                False,
-                "Investigate the endpoint before isolating it."
-            )
-
-
-    elif action == "reset_account":
-
-        required = [
-
-            "emailQuarantined",
-
-            "domainBlocked",
-
-            "sessionRevoked",
-
-            "endpointIsolated",
-
-        ]
-
-        if not all(
-            state.get(key)
-            for key in required
-        ):
-
-            return (
-                False,
-                "Complete containment actions before resetting the account."
-            )
-
-
-    elif action == "close_incident":
-
-        required = [
-
-            "emailQuarantined",
-
-            "domainBlocked",
-
-            "sessionRevoked",
-
-            "endpointIsolated",
-
-            "accountReset",
-
-        ]
-
-        if not all(
-            state.get(key)
-            for key in required
-        ):
-
-            return (
-                False,
-                "Complete containment and remediation before closing the incident."
-            )
-
-
-    return True, None
-
-
-# ================================================================
-#  START BLUE PHISHING SESSION
-# ================================================================
-
-@app.route(
-    "/api/blue-phishing/start",
-    methods=["POST"]
-)
+@app.route("/api/blue-phishing/start", methods=["POST"])
 @jwt_required()
 def start_blue_phishing():
 
     try:
-
         user_id = get_jwt_identity()
+        body = request.get_json(silent=True) or {}
+        if not isinstance(body, dict):
+            body = {}
 
+        generator = body.get("generator", "ai")
+        if generator not in ("ai", "template"):
+            return _blue_error("generator must be 'ai' or 'template'.", 400)
+        archetype = body.get("archetype")
+        if archetype is not None and archetype not in blue_schema.ARCHETYPES:
+            return _blue_error("Unknown scenario type.", 400)
 
-        # --------------------------------------------------------
-        # Resume an existing unfinished Blue phishing session
-        # --------------------------------------------------------
+        existing = db.blue_phishing_sessions.find_one(
+            {"user_id": user_id, "mode": "blue", "attack": "phishing",
+             "status": "in_progress"},
+            sort=[("updated_at", -1)])
 
-        existing_session = (
-            db.blue_phishing_sessions.find_one(
+        if existing:
+            resumable = _blue_is_current(existing) and not body.get("restart")
+            if resumable:
+                return jsonify(_blue_view(existing, resumed=True)), 200
+            db.blue_phishing_sessions.update_many(
+                {"user_id": user_id, "mode": "blue", "attack": "phishing",
+                 "status": "in_progress"},
+                {"$set": {"status": "abandoned",
+                          "abandoned_reason": ("restart_requested" if body.get("restart")
+                                               else "legacy_format"),
+                          "updated_at": datetime.now(timezone.utc)}})
 
-                {
-                    "user_id":
-                        user_id,
+        # Generate (or fall back) BEFORE touching the database so a model
+        # failure can never leave a half-created session behind.
+        try:
+            scenario, meta = blue_ai.generate_scenario(
+                preferred_archetype=archetype, use_ai=(generator == "ai"))
+        except Exception as gen_error:  # noqa: BLE001 - last-resort safety net
+            print("Blue phishing generation error:", type(gen_error).__name__)
+            scenario = blue_templates.build_template_scenario(archetype)
+            meta = {"source": "template", "model": None, "fallback": True,
+                    "fallback_reason": "generator_error", "duration_ms": 0}
 
-                    "mode":
-                        "blue",
+        # Another start (e.g. the user chose "use a built-in scenario" while a
+        # slow model call was still running) may have created a session in
+        # the meantime. Keep that one instead of creating a duplicate.
+        raced = db.blue_phishing_sessions.find_one(
+            {"user_id": user_id, "mode": "blue", "attack": "phishing",
+             "status": "in_progress"},
+            sort=[("updated_at", -1)])
+        if raced and _blue_is_current(raced):
+            return jsonify(_blue_view(raced, resumed=True)), 200
 
-                    "attack":
-                        "phishing",
-
-                    "status":
-                        "in_progress",
-                },
-
-                sort=[
-                    ("updated_at", -1)
-                ],
-            )
-        )
-
-
-        if existing_session:
-
-            session_id = str(
-                existing_session["_id"]
-            )
-
-            started_at = existing_session.get(
-                "started_at"
-            )
-
-            elapsed_seconds = 0
-
-
-            if started_at:
-
-                if started_at.tzinfo is None:
-
-                    started_at = (
-                        started_at.replace(
-                            tzinfo=timezone.utc
-                        )
-                    )
-
-                elapsed_seconds = max(
-
-                    0,
-
-                    int(
-
-                        (
-                            datetime.now(
-                                timezone.utc
-                            )
-                            - started_at
-                        ).total_seconds()
-
-                    ),
-
-                )
-
-
-            return jsonify({
-
-                "success":
-                    True,
-
-                "resumed":
-                    True,
-
-                "session_id":
-                    session_id,
-
-                "incident":
-                    existing_session.get(
-                        "incident",
-                        BLUE_INCIDENT,
-                    ),
-
-                "state":
-                    existing_session.get(
-                        "state",
-                        BLUE_INITIAL_STATE,
-                    ),
-
-                "stage":
-                    existing_session.get(
-                        "stage",
-                        "alert",
-                    ),
-
-                "score":
-                    existing_session.get(
-                        "score",
-                        0,
-                    ),
-
-                "max_score":
-                    existing_session.get(
-                        "max_score",
-                        BLUE_MAX_SCORE,
-                    ),
-
-                "events":
-                    existing_session.get(
-                        "events",
-                        [],
-                    ),
-
-                "elapsed_seconds":
-                    elapsed_seconds,
-
-                "status":
-                    existing_session.get(
-                        "status",
-                        "in_progress",
-                    ),
-
-            }), 200
-
-
-        # --------------------------------------------------------
-        # No unfinished session exists → create a new one
-        # --------------------------------------------------------
-
-        events = []
-
-
-        blue_add_event(
-            events,
-            "Email gateway generated phishing alert"
-        )
-
-
-        blue_add_event(
-            events,
-            "Suspicious message delivered to Finance mailbox"
-        )
-
-
-        blue_add_event(
-            events,
-            "URL reputation check returned suspicious"
-        )
-
-
-        now = datetime.now(
-            timezone.utc
-        )
-
-
+        now = datetime.now(timezone.utc)
+        sim, timeline = blue_engine.new_sim(scenario, now)
         session = {
-
-            "user_id":
-                user_id,
-
-            "mode":
-                "blue",
-
-            "attack":
-                "phishing",
-
-            "incident":
-                BLUE_INCIDENT,
-
-            "state":
-                BLUE_INITIAL_STATE.copy(),
-
-            "stage":
-                "alert",
-
-            "score":
-                0,
-
-            "max_score":
-                BLUE_MAX_SCORE,
-
-            "events":
-                events,
-
-            "actions":
-                [],
-
-            "status":
-                "in_progress",
-
-            "started_at":
-                now,
-
-            "updated_at":
-                now,
-
-            "completed_at":
-                None,
+            "user_id": user_id,
+            "mode": "blue",
+            "attack": "phishing",
+            "schema_version": BLUE_SCHEMA_VERSION,
+            "scenario_id": scenario["scenario_id"],
+            "scenario": scenario,          # includes hidden ground truth: server-side only
+            "generation": meta,
+            "max_score": BLUE_MAX_SCORE,
+            "actions": [],
+            "status": "in_progress",
+            "version": 0,
+            "started_at": now,
+            "updated_at": now,
+            "completed_at": None,
         }
+        session.update(_blue_persist_fields(scenario, sim, timeline, 0))
 
-
-        result = (
-            db.blue_phishing_sessions.insert_one(
-                session
-            )
-        )
-
-
-        return jsonify({
-
-            "success":
-                True,
-
-            "resumed":
-                False,
-
-            "session_id":
-                str(result.inserted_id),
-
-            "incident":
-                BLUE_INCIDENT,
-
-            "state":
-                BLUE_INITIAL_STATE,
-
-            "stage":
-                "alert",
-
-            "score":
-                0,
-
-            "max_score":
-                BLUE_MAX_SCORE,
-
-            "events":
-                events,
-
-            "elapsed_seconds":
-                0,
-
-            "status":
-                "in_progress",
-
-        }), 201
-
+        result = db.blue_phishing_sessions.insert_one(session)
+        session["_id"] = result.inserted_id
+        return jsonify(_blue_view(session, resumed=False)), 201
 
     except Exception as e:
-
-        print(
-            "Blue phishing start error:",
-            e
-        )
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "error":
-                str(e),
-
-        }), 500
+        print("Blue phishing start error:", e)
+        return _blue_error("Unable to start the Blue Team simulation.", 500)
 
 
-# ================================================================
-#  BLUE PHISHING — PERFORM ACTION
-# ================================================================
-
-@app.route(
-    "/api/blue-phishing/<session_id>/action",
-    methods=["POST"]
-)
+@app.route("/api/blue-phishing/<session_id>/action", methods=["POST"])
 @jwt_required()
 def blue_phishing_action(session_id):
 
     try:
-
         user_id = get_jwt_identity()
+        object_id, session, error = _blue_find_session(session_id, user_id)
+        if error:
+            return error
 
+        if request.content_length and request.content_length > BLUE_MAX_BODY_BYTES:
+            return _blue_error("Request too large.", 413)
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return _blue_error("A JSON body is required.", 400)
 
-        try:
-
-            object_id = ObjectId(
-                session_id
-            )
-
-        except InvalidId:
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "Invalid simulation session."
-
-            }), 400
-
-
-        session = (
-            db.blue_phishing_sessions.find_one(
-
-                {
-                    "_id":
-                        object_id,
-
-                    "user_id":
-                        user_id,
-                }
-            )
-        )
-
-
-        if not session:
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "Simulation session not found."
-
-            }), 404
-
-
+        if not _blue_is_current(session):
+            return _blue_error(
+                "This session was created by an older version of the simulation. "
+                "Start a new incident.", 409, restart_required=True)
         if session.get("status") == "completed":
+            return _blue_error("Simulation is already completed.", 400)
+        if session.get("status") != "in_progress":
+            return _blue_error("This incident is no longer active. Start a new one.", 409,
+                               restart_required=True)
 
+        scenario = session["scenario"]
+        sim = blue_engine.clone(session["sim"])
+        timeline = blue_engine.clone(session["timeline"])
+        old_score = int(session.get("score", 0))
+        now = datetime.now(timezone.utc)
+        elapsed = _blue_elapsed(session, now)
+
+        res = blue_engine.apply_action(
+            scenario, sim, timeline,
+            data.get("action"), data.get("target"), data.get("params"),
+            now=now, elapsed_seconds=elapsed)
+
+        if not res["persist"]:
             return jsonify({
+                **_blue_view(session),
+                "success": False, "error": res["error"],
+                "confirmation_required": bool(res.get("confirmation_required")),
+            }), res["http"]
 
-                "success":
-                    False,
+        fields = _blue_persist_fields(scenario, sim, timeline, elapsed)
+        status = "completed" if sim["closed"] else "in_progress"
+        fields.update(status=status, updated_at=now, version=session["version"] + 1)
+        if sim["closed"]:
+            fields["completed_at"] = now
+        if res["ok"]:
+            fields["actions"] = list(session.get("actions", [])) + [{
+                "action": data.get("action"),
+                "target": data.get("target") if isinstance(data.get("target"), str) else None,
+                "points": fields["score"] - old_score,
+                "timestamp": now,
+            }]
 
-                "error":
-                    "Simulation is already completed."
+        # Optimistic concurrency: a concurrent request on the same session
+        # must not double-apply score or evidence.
+        written = db.blue_phishing_sessions.update_one(
+            {"_id": object_id, "user_id": user_id, "version": session["version"]},
+            {"$set": fields})
+        if written.matched_count != 1:
+            return _blue_error(
+                "The session changed in another request. Reload and try again.", 409)
 
-            }), 400
-
-
-        data = request.get_json() or {}
-
-        action = data.get(
-            "action"
+        session.update(fields)
+        if sim["closed"]:
+            # Persist the report immediately so it is never lost if the browser
+            # is closed on the closure screen. AI commentary is added later by
+            # /complete, which keeps this response fast.
+            try:
+                _blue_store_report(session, user_id, with_ai=False)
+            except Exception as report_error:  # noqa: BLE001
+                print("Blue phishing report save error:", report_error)
+        new_ids = res["new_evidence"]
+        view = _blue_view(
+            session,
+            message=res["message"] or None,
+            feedback=res["feedback"],
+            attacker_alerts=res["alerts"],
+            new_evidence=[e for e in blue_engine.public_view(
+                scenario, sim, timeline, elapsed)["evidence"] if e["id"] in new_ids],
+            new_indicator_ids=res["new_indicators"],
+            new_user_ids=res["new_users"],
+            score_delta=fields["score"] - old_score,
+            penalty_points=res["penalty_points"],
+            verification=res.get("verification"),
+            action=data.get("action"),
         )
-
-
-        if action not in BLUE_ACTIONS:
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "Unknown Blue Team action."
-
-            }), 400
-
-
-        action_config = BLUE_ACTIONS[
-            action
-        ]
-
-
-        state = session.get(
-
-            "state",
-
-            BLUE_INITIAL_STATE.copy()
-
-        )
-
-        state = dict(state)
-
-
-        state_key = action_config[
-            "state"
-        ]
-
-
-        # Prevent duplicate scoring
-        if state.get(state_key):
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "This action has already been completed.",
-
-                "state":
-                    state,
-
-                "stage":
-                    session.get("stage"),
-
-                "score":
-                    session.get("score", 0),
-
-                "events":
-                    session.get(
-                        "events",
-                        []
-                    ),
-
-            }), 409
-
-
-        allowed, error_message = (
-            blue_action_allowed(
-                state,
-                action
-            )
-        )
-
-
-        if not allowed:
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    error_message,
-
-                "state":
-                    state,
-
-                "stage":
-                    session.get("stage"),
-
-                "score":
-                    session.get("score", 0),
-
-                "events":
-                    session.get(
-                        "events",
-                        []
-                    ),
-
-            }), 400
-
-
-        # --------------------------------------------------------
-        # Update state
-        # --------------------------------------------------------
-
-        state[state_key] = True
-
-
-        current_score = int(
-            session.get(
-                "score",
-                0
-            )
-        )
-
-
-        points = int(
-            action_config[
-                "points"
-            ]
-        )
-
-
-        new_score = min(
-
-            BLUE_MAX_SCORE,
-
-            current_score + points
-
-        )
-
-
-        events = list(
-            session.get(
-                "events",
-                []
-            )
-        )
-
-
-        # --------------------------------------------------------
-        # Action-specific telemetry
-        # --------------------------------------------------------
-
-        if action == "inspect_email":
-
-            blue_add_event(
-                events,
-                "Analyst opened suspicious email artifact"
-            )
-
-            blue_add_event(
-                events,
-                f"Sender identified: {BLUE_INCIDENT['email']['sender']}"
-            )
-
-            blue_add_event(
-                events,
-                f"Recipient identified: {BLUE_INCIDENT['email']['recipient']}"
-            )
-
-
-        elif action == "inspect_headers":
-
-            blue_add_event(
-                events,
-                "Email authentication headers inspected"
-            )
-
-            blue_add_event(
-                events,
-                "SPF alignment: FAILED"
-            )
-
-            blue_add_event(
-                events,
-                "DKIM signature: INVALID"
-            )
-
-            blue_add_event(
-                events,
-                "Reply-To differs from trusted vendor domain"
-            )
-
-
-        elif action == "inspect_url":
-
-            blue_add_event(
-                events,
-                f"URL extracted: {BLUE_INCIDENT['email']['url']}"
-            )
-
-            blue_add_event(
-                events,
-                f"Domain classified as {BLUE_INCIDENT['ioc']['reputation']}"
-            )
-
-
-        elif action == "search_siem":
-
-            blue_add_event(
-                events,
-                "SIEM correlation search initiated"
-            )
-
-            blue_add_event(
-                events,
-                "DNS query found for vendor-login.acme.test"
-            )
-
-            blue_add_event(
-                events,
-                "FIN-WS-042 contacted suspicious domain"
-            )
-
-            blue_add_event(
-                events,
-                "Authentication event correlated with phishing alert"
-            )
-
-
-        elif action == "investigate_user":
-
-            blue_add_event(
-                events,
-                "User investigation started for Sarah Mitchell"
-            )
-
-            blue_add_event(
-                events,
-                "Recent authentication activity reviewed"
-            )
-
-            blue_add_event(
-                events,
-                "Suspicious session detected from unfamiliar source"
-            )
-
-            blue_add_event(
-                events,
-                "User account considered at risk"
-            )
-
-
-        elif action == "investigate_endpoint":
-
-            blue_add_event(
-                events,
-                "Endpoint FIN-WS-042 investigated"
-            )
-
-            blue_add_event(
-                events,
-                "Browser process accessed phishing domain"
-            )
-
-            blue_add_event(
-                events,
-                "No confirmed malware execution observed"
-            )
-
-            blue_add_event(
-                events,
-                "Endpoint remains online pending containment"
-            )
-
-
-        elif action == "quarantine_email":
-
-            blue_add_event(
-                events,
-                "Phishing message quarantined"
-            )
-
-            blue_add_event(
-                events,
-                "Message removed from target mailbox"
-            )
-
-            blue_add_event(
-                events,
-                "Message search initiated for additional recipients"
-            )
-
-
-        elif action == "block_domain":
-
-            blue_add_event(
-                events,
-                "Malicious domain blocked"
-            )
-
-            blue_add_event(
-                events,
-                "DNS / web filtering rule updated"
-            )
-
-
-        elif action == "revoke_session":
-
-            blue_add_event(
-                events,
-                "Suspicious active session identified"
-            )
-
-            blue_add_event(
-                events,
-                "Active session revoked"
-            )
-
-            blue_add_event(
-                events,
-                "Authentication tokens invalidated"
-            )
-
-
-        elif action == "isolate_endpoint":
-
-            blue_add_event(
-                events,
-                "Endpoint isolation requested"
-            )
-
-            blue_add_event(
-                events,
-                "FIN-WS-042 isolated from network"
-            )
-
-
-        elif action == "reset_account":
-
-            blue_add_event(
-                events,
-                "Account password reset initiated"
-            )
-
-            blue_add_event(
-                events,
-                "Existing authentication tokens invalidated"
-            )
-
-            blue_add_event(
-                events,
-                "Account remediation completed"
-            )
-
-
-        elif action == "close_incident":
-
-            blue_add_event(
-                events,
-                "Incident closure review initiated"
-            )
-
-            blue_add_event(
-                events,
-                "Containment controls verified"
-            )
-
-            blue_add_event(
-                events,
-                "Remediation controls verified"
-            )
-
-            blue_add_event(
-                events,
-                "Phishing incident successfully closed"
-            )
-
-
-        # --------------------------------------------------------
-        # Calculate stage
-        # --------------------------------------------------------
-
-        new_stage = blue_calculate_stage(
-            state
-        )
-
-
-        # --------------------------------------------------------
-        # Save action history
-        # --------------------------------------------------------
-
-        actions = list(
-            session.get(
-                "actions",
-                []
-            )
-        )
-
-
-        actions.append({
-
-            "action":
-                action,
-
-            "points":
-                points,
-
-            "timestamp":
-                datetime.now(
-                    timezone.utc
-                ),
-
-        })
-
-
-        status = (
-
-            "completed"
-
-            if state.get(
-                "incidentClosed"
-            )
-
-            else "in_progress"
-
-        )
-
-
-        now = datetime.now(
-            timezone.utc
-        )
-
-
-        update_fields = {
-
-            "state":
-                state,
-
-            "stage":
-                new_stage,
-
-            "score":
-                new_score,
-
-            "events":
-                events,
-
-            "actions":
-                actions,
-
-            "status":
-                status,
-
-            "updated_at":
-                now,
-
-        }
-
-
-        # Store an exact completion timestamp
-        # only when the incident is actually closed.
-        if status == "completed":
-
-            update_fields[
-                "completed_at"
-            ] = now
-
-
-        db.blue_phishing_sessions.update_one(
-
-            {
-                "_id":
-                    object_id,
-
-                "user_id":
-                    user_id,
-            },
-
-            {
-                "$set":
-                    update_fields
-            }
-
-        )
-
-
-        return jsonify({
-
-            "success":
-                True,
-
-            "action":
-                action,
-
-            "points_awarded":
-                points,
-
-            "score":
-                new_score,
-
-            "max_score":
-                BLUE_MAX_SCORE,
-
-            "stage":
-                new_stage,
-
-            "state":
-                state,
-
-            "events":
-                events,
-
-            "status":
-                status,
-
-        }), 200
-
+        if not res["ok"]:
+            view.update(success=False, error=res["error"])
+            return jsonify(view), res["http"]
+        return jsonify(view), 200
 
     except Exception as e:
-
-        print(
-            "Blue phishing action error:",
-            e
-        )
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "error":
-                str(e)
-
-        }), 500
+        print("Blue phishing action error:", e)
+        return _blue_error("Action could not be completed.", 500)
 
 
-# ================================================================
-#  BLUE PHISHING — COMPLETE SESSION / CREATE PERMANENT REPORT
-# ================================================================
+def _blue_report_doc(session, user_id, report_core, completed_at):
+    scenario = session["scenario"]
+    primary = next(u for u in scenario["target"]["users"]
+                   if u["id"] == scenario["target"]["primary_user_id"])
+    incident = dict(session.get("incident") or {})
+    incident["classification"] = report_core["evaluation"]["classification"]["truth"]
+    report = {
+        **report_core,
+        "user_id": user_id,
+        "session_id": str(session["_id"]),
+        "mode": "blue",
+        "attack": "phishing",
+        "guide_title": "Blue Team — Phishing Incident Response",
+        "target": {k: primary[k] for k in ("name", "role", "department", "email", "endpoint")},
+        "incident": incident,
+        "total_stages": len(BLUE_STAGES),
+        "stages_completed": BLUE_STAGES,
+        "choices": [
+            {"type": a.get("action"), "value": True, "points": a.get("points", 0)}
+            for a in session.get("actions", [])
+        ],
+        "actions": session.get("actions", []),
+        "scenario_id": session.get("scenario_id"),
+        "schema_version": session.get("schema_version"),
+        "generation": _blue_generation_public(session),
+        "created_at": completed_at,
+        "completed_at": completed_at,
+    }
+    return report
 
-@app.route(
-    "/api/blue-phishing/<session_id>/complete",
-    methods=["POST"]
-)
+
+@app.route("/api/blue-phishing/<session_id>/query", methods=["POST"])
+@jwt_required()
+def blue_phishing_query(session_id):
+    """Read-only SIEM / log search over the simulated dataset. It never
+    changes simulation state, and only returns rows for users the analyst
+    has already identified."""
+
+    try:
+        user_id = get_jwt_identity()
+        object_id, session, error = _blue_find_session(session_id, user_id)
+        if error:
+            return error
+        if request.content_length and request.content_length > BLUE_MAX_BODY_BYTES:
+            return _blue_error("Request too large.", 413)
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return _blue_error("A JSON body is required.", 400)
+        if not _blue_is_current(session):
+            return _blue_error("This session predates the current simulation.", 409,
+                               restart_required=True)
+        try:
+            result = blue_engine.query_logs(
+                session["scenario"], session["sim"],
+                source=data.get("source"), filters=data.get("filters"))
+        except ValueError as bad:
+            return _blue_error(str(bad), 400)
+        return jsonify({"success": True, **result}), 200
+
+    except Exception as e:
+        print("Blue phishing query error:", e)
+        return _blue_error("Unable to run the search.", 500)
+
+
+@app.route("/api/blue-phishing/<session_id>/hint", methods=["POST"])
+@jwt_required()
+def blue_phishing_hint(session_id):
+    """Optional coaching hint. Built only from what the analyst can already
+    see; a null hint tells the client to use its built-in hint."""
+
+    try:
+        user_id = get_jwt_identity()
+        _, session, error = _blue_find_session(session_id, user_id)
+        if error:
+            return error
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return _blue_error("A JSON body is required.", 400)
+        if not _blue_is_current(session):
+            return _blue_error("This session predates the current simulation.", 409,
+                               restart_required=True)
+        level = data.get("level")
+        step = str(data.get("step", ""))[:60]
+        title = str(data.get("title", ""))[:80]
+        if level not in (1, 2, 3):
+            return _blue_error("Choose hint level 1, 2 or 3.", 400)
+        view = _blue_view(session)
+        context = {
+            "step": title or step,
+            "email_subject": view["email"].get("subject") if view["email"].get("opened") else None,
+            "clues_found": [{"title": e["title"], "summary": (e["content"].get("summary") or "")[:160]}
+                            for e in view["evidence"][-8:]],
+            "indicators_found": len(view["indicators"]),
+            "users_identified": len(view["users"]),
+        }
+        hint = blue_ai.generate_hint(context, level) if not view["closed"] else None
+        return jsonify({"success": True, "hint": hint, "source": "ai" if hint else "builtin"}), 200
+
+    except Exception as e:
+        print("Blue phishing hint error:", e)
+        return jsonify({"success": True, "hint": None, "source": "builtin"}), 200
+
+
+def _blue_store_report(session, user_id, with_ai=False):
+    """Build the authoritative report from the closed session and upsert it
+    (one report per session). Optional AI commentary is validated, never used
+    for scoring, and reused if it already exists."""
+    completed_at = session.get("completed_at") or datetime.now(timezone.utc)
+    elapsed = _blue_elapsed(session, completed_at)
+    report_core = blue_engine.build_report(
+        session["scenario"], session["sim"], session["timeline"], elapsed,
+        generation=_blue_generation_public(session))
+    report = _blue_report_doc(session, user_id, report_core, completed_at)
+
+    key = {"session_id": str(session["_id"]), "user_id": user_id}
+    existing = db.blue_phishing_reports.find_one(key)
+    commentary = ((existing or {}).get("debrief") or {}).get("ai_commentary")
+    if commentary is None and with_ai and session["scenario"].get("source") == "ollama":
+        commentary = blue_ai.generate_debrief({
+            "outcome": report["outcome"], "score": report["score"],
+            "classification_correct": report["evaluation"]["classification"]["correct"],
+            "missed_evidence": [m["title"] for m in report["evaluation"]["missed_evidence"]],
+            "mistakes": [p["code"] for p in report["evaluation"]["incorrect_decisions"]],
+            "scenario": session["scenario"]["title"],
+        })
+    if commentary:
+        report["debrief"]["ai_commentary"] = commentary
+
+    db.blue_phishing_reports.update_one(key, {"$set": report}, upsert=True)
+    saved = db.blue_phishing_reports.find_one(key)
+    report.pop("_id", None)
+    return str(saved["_id"]), report
+
+
+@app.route("/api/blue-phishing/<session_id>/complete", methods=["POST"])
 @jwt_required()
 def complete_blue_phishing(session_id):
 
     try:
-
         user_id = get_jwt_identity()
+        object_id, session, error = _blue_find_session(session_id, user_id)
+        if error:
+            return error
+        if not _blue_is_current(session):
+            return _blue_error("This session predates the current simulation.", 409,
+                               restart_required=True)
 
+        if not session["sim"].get("closed"):
+            return _blue_error(
+                "Complete the incident before generating the final report.", 400)
 
-        try:
-
-            object_id = ObjectId(
-                session_id
-            )
-
-        except InvalidId:
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "Invalid simulation session."
-
-            }), 400
-
-
-        session = (
-            db.blue_phishing_sessions.find_one(
-
-                {
-                    "_id":
-                        object_id,
-
-                    "user_id":
-                        user_id,
-                }
-
-            )
-        )
-
-
-        if not session:
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "Simulation session not found."
-
-            }), 404
-
-
-        state = session.get(
-
-            "state",
-
-            BLUE_INITIAL_STATE.copy()
-
-        )
-
-
-        if not state.get(
-            "incidentClosed"
-        ):
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "Complete the incident before generating the final report."
-
-            }), 400
-
-
-        completed_at = session.get(
-            "completed_at"
-        )
-
-
-        if not completed_at:
-
-            completed_at = datetime.now(
-                timezone.utc
-            )
-
+        if not session.get("completed_at"):
+            now = datetime.now(timezone.utc)
             db.blue_phishing_sessions.update_one(
-
-                {
-                    "_id":
-                        object_id,
-
-                    "user_id":
-                        user_id,
-                },
-
-                {
-                    "$set": {
-
-                        "completed_at":
-                            completed_at,
-
-                        "status":
-                            "completed",
-
-                        "updated_at":
-                            completed_at,
-
-                    }
-                }
-
-            )
-
-
-        started_at = session.get(
-            "started_at"
-        )
-
-
-        duration_seconds = 0
-
-
-        if started_at and completed_at:
-
-            if started_at.tzinfo is None:
-
-                started_at = (
-                    started_at.replace(
-                        tzinfo=timezone.utc
-                    )
-                )
-
-
-            if completed_at.tzinfo is None:
-
-                completed_at = (
-                    completed_at.replace(
-                        tzinfo=timezone.utc
-                    )
-                )
-
-
-            duration_seconds = max(
-
-                0,
-
-                int(
-
-                    (
-                        completed_at
-                        - started_at
-                    ).total_seconds()
-
-                )
-
-            )
-
-
-        actions = session.get(
-            "actions",
-            []
-        )
-
-
-        choices = []
-
-
-        for action in actions:
-
-            action_name = action.get(
-                "action"
-            )
-
-
-            state_key = (
-                BLUE_ACTIONS.get(
-                    action_name,
-                    {}
-                ).get(
-                    "state"
-                )
-            )
-
-
-            if state_key:
-
-                choices.append({
-
-                    "type":
-                        action_name,
-
-                    "value":
-                        True,
-
-                    "points":
-                        action.get(
-                            "points",
-                            0
-                        ),
-
-                })
-
-
-        report = {
-
-            "user_id":
-                user_id,
-
-            "session_id":
-                str(
-                    session["_id"]
-                ),
-
-            "mode":
-                "blue",
-
-            "attack":
-                "phishing",
-
-            "guide_title":
-                "Blue Team — Phishing Incident Response",
-
-            "result":
-                "success",
-
-            "target":
-                session.get(
-                    "incident",
-                    BLUE_INCIDENT
-                ).get(
-                    "target",
-                    BLUE_INCIDENT["target"]
-                ),
-
-            "incident":
-                session.get(
-                    "incident",
-                    BLUE_INCIDENT
-                ),
-
-            "score":
-                session.get(
-                    "score",
-                    0
-                ),
-
-            "max_score":
-                session.get(
-                    "max_score",
-                    BLUE_MAX_SCORE
-                ),
-
-            "duration_seconds":
-                duration_seconds,
-
-            "total_stages":
-                len(BLUE_STAGES),
-
-            "stages_completed":
-                BLUE_STAGES,
-
-            "choices":
-                choices,
-
-            "actions":
-                actions,
-
-            "state":
-                state,
-
-            "log_lines":
-                session.get(
-                    "events",
-                    []
-                ),
-
-            "created_at":
-                completed_at,
-
-            "completed_at":
-                completed_at,
-        }
-
-
-        # --------------------------------------------------------
-        # Permanently save the final report.
-        #
-        # We use a session_id lookup first so refreshing /
-        # reopening the report does not create duplicate reports.
-        # --------------------------------------------------------
-
-        existing_report = (
-            db.blue_phishing_reports.find_one(
-                {
-                    "session_id":
-                        str(session["_id"]),
-
-                    "user_id":
-                        user_id,
-                }
-            )
-        )
-
-
-        if existing_report:
-
-            report_id = str(
-                existing_report["_id"]
-            )
-
-
-            db.blue_phishing_reports.update_one(
-
-                {
-                    "_id":
-                        existing_report["_id"]
-                },
-
-                {
-                    "$set":
-                        report
-                }
-
-            )
-
-        else:
-
-            result = (
-                db.blue_phishing_reports.insert_one(
-                    report
-                )
-            )
-
-            report_id = str(
-                result.inserted_id
-            )
-
-
+                {"_id": object_id, "user_id": user_id},
+                {"$set": {"completed_at": now, "status": "completed", "updated_at": now}})
+            session["completed_at"] = now
+
+        report_id, report = _blue_store_report(session, user_id, with_ai=True)
         return jsonify({
-
-            "success":
-                True,
-
-            "message":
-                "Blue Team phishing report saved",
-
-            "report_id":
-                report_id,
-
-            "report":
-                report,
-
+            "success": True,
+            "message": "Blue Team phishing report saved",
+            "report_id": report_id,
+            "report": report,
         }), 200
 
-
     except Exception as e:
-
-        print(
-            "Blue phishing completion error:",
-            e
-        )
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "error":
-                str(e)
-
-        }), 500
+        print("Blue phishing completion error:", e)
+        return _blue_error("Unable to generate the report.", 500)
 
 
-# ================================================================
-#  BLUE PHISHING — GET PERMANENT REPORT
-# ================================================================
-
-@app.route(
-    "/api/blue-phishing/<session_id>/report",
-    methods=["GET"]
-)
+@app.route("/api/blue-phishing/<session_id>/report", methods=["GET"])
 @jwt_required()
 def get_blue_phishing_report(session_id):
 
     try:
-
         user_id = get_jwt_identity()
 
-
-        # --------------------------------------------------------
-        # First try the permanent Blue report collection.
-        # --------------------------------------------------------
-
-        report = (
-            db.blue_phishing_reports.find_one(
-
-                {
-                    "session_id":
-                        session_id,
-
-                    "user_id":
-                        user_id,
-                }
-
-            )
-        )
-
-
+        report = db.blue_phishing_reports.find_one(
+            {"session_id": session_id, "user_id": user_id})
         if report:
-
-            report["_id"] = str(
-                report["_id"]
-            )
-
-
-            return jsonify({
-
-                "success":
-                    True,
-
-                "report":
-                    report,
-
-            }), 200
-
-
-        # --------------------------------------------------------
-        # If a report does not exist yet, check the session.
-        # This allows the frontend to complete the session first.
-        # --------------------------------------------------------
-
-        try:
-
-            object_id = ObjectId(
-                session_id
-            )
-
-        except InvalidId:
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "Invalid simulation session."
-
-            }), 400
-
-
-        session = (
-            db.blue_phishing_sessions.find_one(
-
-                {
-                    "_id":
-                        object_id,
-
-                    "user_id":
-                        user_id,
-                }
-
-            )
-        )
-
-
-        if not session:
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "Simulation session not found."
-
-            }), 404
-
-
-        if session.get(
-            "status"
-        ) != "completed":
-
-            return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "Simulation has not been completed yet."
-
-            }), 400
-
-
-        # --------------------------------------------------------
-        # If session is completed but permanent report is missing,
-        # construct the report from the MongoDB session.
-        # --------------------------------------------------------
-
-        started_at = session.get(
-            "started_at"
-        )
-
-        completed_at = session.get(
-            "completed_at"
-        )
-
-
-        if not completed_at:
-
-            completed_at = session.get(
-                "updated_at"
-            )
-
-
-        duration_seconds = 0
-
-
-        if started_at and completed_at:
-
-            if started_at.tzinfo is None:
-
-                started_at = (
-                    started_at.replace(
-                        tzinfo=timezone.utc
-                    )
-                )
-
-
-            if completed_at.tzinfo is None:
-
-                completed_at = (
-                    completed_at.replace(
-                        tzinfo=timezone.utc
-                    )
-                )
-
-
-            duration_seconds = max(
-
-                0,
-
-                int(
-
-                    (
-                        completed_at
-                        - started_at
-                    ).total_seconds()
-
-                )
-
-            )
-
-
-        state = session.get(
-
-            "state",
-
-            BLUE_INITIAL_STATE.copy()
-
-        )
-
-
-        actions = session.get(
-            "actions",
-            []
-        )
-
-
-        choices = []
-
-
-        for action in actions:
-
-            action_name = action.get(
-                "action"
-            )
-
-
-            state_key = (
-                BLUE_ACTIONS.get(
-                    action_name,
-                    {}
-                ).get(
-                    "state"
-                )
-            )
-
-
-            if state_key:
-
-                choices.append({
-
-                    "type":
-                        action_name,
-
-                    "value":
-                        True,
-
-                    "points":
-                        action.get(
-                            "points",
-                            0
-                        ),
-
-                })
-
-
-        report = {
-
-            "report_id":
-                str(
-                    session["_id"]
-                ),
-
-            "session_id":
-                str(
-                    session["_id"]
-                ),
-
-            "user_id":
-                user_id,
-
-            "mode":
-                "blue",
-
-            "attack":
-                "phishing",
-
-            "guide_title":
-                "Blue Team — Phishing Incident Response",
-
-            "result":
-                "success",
-
-            "target":
-                session.get(
-                    "incident",
-                    BLUE_INCIDENT
-                ).get(
-                    "target",
-                    BLUE_INCIDENT["target"]
-                ),
-
-            "incident":
-                session.get(
-                    "incident",
-                    BLUE_INCIDENT
-                ),
-
-            "score":
-                session.get(
-                    "score",
-                    0
-                ),
-
-            "max_score":
-                session.get(
-                    "max_score",
-                    BLUE_MAX_SCORE
-                ),
-
-            "duration_seconds":
-                duration_seconds,
-
-            "total_stages":
-                len(BLUE_STAGES),
-
-            "stages_completed":
-                BLUE_STAGES,
-
-            "choices":
-                choices,
-
-            "actions":
-                actions,
-
-            "state":
-                state,
-
-            "log_lines":
-                session.get(
-                    "events",
-                    []
-                ),
-
-            "created_at":
-                completed_at,
-
-            "completed_at":
-                completed_at,
-
-        }
-
-
-        return jsonify({
-
-            "success":
-                True,
-
-            "report":
-                report,
-
-        }), 200
-
+            report["_id"] = str(report["_id"])
+            report["report_id"] = report["_id"]
+            return jsonify({"success": True, "report": report}), 200
+
+        object_id, session, error = _blue_find_session(session_id, user_id)
+        if error:
+            return error
+        if not _blue_is_current(session) or not session["sim"].get("closed"):
+            return _blue_error("Simulation has not been completed yet.", 400)
+
+        completed_at = session.get("completed_at") or session.get("updated_at")
+        report_core = blue_engine.build_report(
+            session["scenario"], session["sim"], session["timeline"],
+            _blue_elapsed(session, completed_at),
+            generation=_blue_generation_public(session))
+        report = _blue_report_doc(session, user_id, report_core, completed_at)
+        report["report_id"] = str(session["_id"])
+        return jsonify({"success": True, "report": report}), 200
 
     except Exception as e:
-
-        print(
-            "Blue phishing report error:",
-            e
-        )
-
-        return jsonify({
-
-            "success":
-                False,
-
-            "error":
-                str(e)
-
-        }), 500
+        print("Blue phishing report error:", e)
+        return _blue_error("Unable to load the report.", 500)
 
 
 # ================================================================

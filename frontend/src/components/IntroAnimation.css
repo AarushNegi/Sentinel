@@ -1,0 +1,231 @@
+/* components/IntroAnimation.css */
+
+.intro-wrap {
+  /* No overflow rule here: any overflow value other than "visible" on an
+     ancestor makes it the scroll container that position:sticky below
+     measures against instead of the viewport, which silently breaks the
+     scrub (the sticky frame stops tracking scroll and just scrolls away
+     with the page). overflow-x is scoped to .intro-sticky instead. */
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: calc(100vh + var(--intro-scrub, 0px));
+  height: calc(100dvh + var(--intro-scrub, 0px));
+  background: linear-gradient(180deg, #030712 0%, #070b18 100%);
+}
+
+.intro-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh; /* real viewport height on mobile, ignoring browser chrome */
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #030712 0%, #070b18 100%);
+}
+
+/* Once the scrub completes, the final logo frame keeps its sticky position
+   and stays fully visible — it is the natural end of the sticky container's
+   own scroll range, not an opacity trick, that lets it scroll away under the
+   revealed homepage as the visitor keeps scrolling. */
+.intro-sticky.intro-done {
+  pointer-events: none;
+}
+
+/* Restrained ambient lighting: a soft red glow sits where the snake appears
+   in the sequence (left of center) and a soft blue glow where the wolf
+   appears (right of center). Plain CSS, not derived from the frame image,
+   so it stays calm and identical across every frame instead of producing a
+   hard-edged color split or a visible background panel. */
+.intro-ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(36% 40% at 27% 54%, rgba(255, 23, 68, 0.14), transparent 70%),
+    radial-gradient(36% 40% at 73% 54%, rgba(0, 153, 255, 0.14), transparent 70%);
+}
+
+/* Faint circuit-board texture — kept barely perceptible so it reads as
+   quiet depth rather than a decorative grid. */
+.intro-circuit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(0, 153, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 153, 255, 0.035) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse at center, black 18%, transparent 55%);
+  pointer-events: none;
+}
+
+/* Soft edge darkening only — no longer blending into a blurred backdrop
+   image, just enough depth to keep focus on the artwork. */
+.intro-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(ellipse 74% 74% at 50% 50%, transparent 62%, rgba(2, 4, 9, 0.5) 100%);
+}
+
+.intro-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  user-select: none;
+  filter: drop-shadow(0 0 40px rgba(0, 153, 255, 0.08));
+  /* The source clip carries a small generator watermark in its top-right
+     corner on every frame but the last. With cover, horizontal position is
+     preserved exactly (desktop/landscape viewports only crop vertically
+     here, since every frame is wider than it is tall), so a corner mask
+     still reliably lands on it and lets it dissolve into the frame's own
+     dark background instead of being visible or needing a crop/blur. */
+  -webkit-mask-image: radial-gradient(circle at 92% 6%, transparent 0 9%, black 20%);
+  mask-image: radial-gradient(circle at 92% 6%, transparent 0 9%, black 20%);
+}
+
+/* The final frame is a different (square) aspect ratio and has no
+   watermark to hide, but otherwise fills edge-to-edge exactly like every
+   other frame (same cover treatment) so the sequence doesn't visibly
+   change behavior right at the end. */
+.intro-frame-final {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* Both phase sequences stay mounted the whole time (so phase 2's frames have
+   the maximum time to preload before they're needed) and are swapped with a
+   hard, instant cut — never a fade. Phase 1's last frame and phase 2's
+   first frame are the same completed-emblem composition, so a cut between
+   them reads as seamless without needing a blend, and a cross-fade would
+   risk briefly showing both sequences' slightly different
+   resolutions overlaid on top of each other. */
+.intro-layer-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-hint {
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--sen-font, 'Inter', system-ui, sans-serif);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sen-text-dim, #7c8ca3);
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.intro-hint-hidden {
+  opacity: 0;
+}
+
+.intro-hint-chevron {
+  font-size: 15px;
+  animation: intro-bounce 1.8s ease-in-out infinite;
+}
+
+@keyframes intro-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+.intro-skip {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 4;
+  padding: 8px 15px;
+  font-family: var(--sen-font, 'Inter', system-ui, sans-serif);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sen-text-dim, #9aa5b4);
+  background: rgba(8, 14, 22, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.intro-skip:hover {
+  color: var(--sen-text, #f3f6fa);
+  border-color: rgba(0, 217, 255, 0.4);
+  background: rgba(0, 153, 255, 0.08);
+}
+
+.intro-skip:focus-visible {
+  outline: 2px solid var(--sen-cyan, #00d9ff);
+  outline-offset: 2px;
+}
+
+.intro-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.intro-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sen-blue, #0099ff), var(--sen-cyan, #00d9ff));
+  box-shadow: 0 0 6px rgba(0, 217, 255, 0.45);
+  transition: width 0.08s linear;
+}
+
+/* Every frame has the snake and wolf positioned at its far left/right
+   edges. On a narrow portrait phone, cover's crop math leaves only the
+   center ~30% of the frame's width on screen — hiding both subjects
+   entirely for most of the sequence. Contain keeps the full artwork
+   visible (letterboxed top/bottom) while the stage itself is still a true
+   full-bleed 100dvh dark container — the background still reaches every
+   edge even though the image doesn't on this breakpoint. */
+@media (max-width: 700px) {
+  .intro-frame {
+    object-fit: contain;
+    /* The corner mask assumes cover's exact edge-to-edge mapping; contain's
+       letterboxing shifts that mapping, so it's disabled here rather than
+       risk masking actual artwork instead of the watermark. */
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .intro-hint {
+    bottom: 40px;
+    font-size: 9.5px;
+  }
+  .intro-skip {
+    top: 16px;
+    right: 16px;
+    padding: 7px 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-hint-chevron {
+    animation: none;
+  }
+}

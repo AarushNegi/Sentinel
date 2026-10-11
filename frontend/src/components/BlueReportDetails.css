@@ -1,0 +1,42 @@
+/* components/BlueReportDetails.css — Blue Team debrief sections on Outcome */
+
+.brd-bars { display: grid; gap: 12px; }
+.brd-bar-row > div:first-child { display: flex; justify-content: space-between; font-size: 12px; color: #9aa6b8; }
+.brd-bar-row strong { color: #e9edf5; font-family: monospace; }
+.brd-bar { height: 5px; margin-top: 5px; background: #1a212c; }
+.brd-bar i { display: block; height: 100%; background: #4e9cff; }
+.brd-penalties { margin-top: 8px; padding: 12px 14px; border-left: 2px solid #ff6969; background: #2a1414; color: #ffb0b0; font-size: 12px; }
+.brd-penalties ul { margin: 6px 0 0; padding-left: 18px; }
+
+.brd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.brd-grid > div { padding: 14px; border: 1px solid #27303e; background: #0f1520; }
+.brd-grid span { display: block; color: #667286; font-size: 9px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; }
+.brd-grid strong { display: block; margin: 4px 0; font-size: 14px; text-transform: capitalize; }
+.brd-grid small { color: #8794a8; font-size: 11px; }
+.brd-grid small.ok { color: #54d69a; }
+.brd-grid small.bad { color: #ff8d8d; }
+
+.brd-list { margin: 12px 0; padding: 12px 14px; border-left: 2px solid #4d9eff; background: #101b2a; font-size: 12.5px; color: #b9c8dc; }
+.brd-list.ok { border-color: #2c7559; background: #0f241c; color: #a6e6c6; }
+.brd-list.bad { border-color: #a04545; background: #2a1414; color: #ffb0b0; }
+.brd-list ul { margin: 6px 0 0; padding-left: 18px; line-height: 1.7; }
+.brd-list p { margin: 6px 0 0; line-height: 1.6; }
+
+.brd-objective, .brd-ai { margin: 8px 0 14px; padding: 12px 14px; border: 1px solid #27303e; background: #0f1520; font-size: 13px; line-height: 1.6; }
+.brd-objective span, .brd-ai span { display: block; margin-bottom: 3px; color: #579fff; font-size: 9px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; }
+.brd-chain { margin: 8px 0 14px; padding: 0; list-style: none; border-left: 1px solid #27303e; }
+.brd-chain li { position: relative; padding: 6px 0 6px 18px; font-size: 13px; color: #c4ccd8; }
+.brd-chain li::before { content: ''; position: absolute; left: -4px; top: 13px; width: 7px; height: 7px; border-radius: 50%; background: #ff6969; }
+.brd-chain time { margin-right: 10px; color: #667286; font-family: monospace; font-size: 11px; }
+.brd-source { margin-top: 10px; color: #667286; font-size: 11px; }
+
+.brd-note { margin: 0 0 12px; color: #7e8999; font-size: 12px; }
+.brd-why { margin: 4px 0 0; color: #8794a8; font-size: 11px; line-height: 1.5; }
+.brd-table-wrap { overflow-x: auto; margin: 10px 0; }
+.brd-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.brd-table th { padding: 8px 10px; border-bottom: 1px solid #27303e; color: #667286; text-align: left; font-size: 9px; letter-spacing: 0.6px; text-transform: uppercase; }
+.brd-table td { padding: 8px 10px; border-bottom: 1px solid #1a212c; color: #c4ccd8; vertical-align: top; }
+.brd-table td small { display: block; color: #667286; font-family: monospace; font-size: 10px; }
+.brd-table td.ok { color: #54d69a; }
+.brd-table td.bad { color: #ff8d8d; }
+.brd-crit { margin-left: 8px; color: #e6b95c; font-size: 9px; font-style: normal; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; }

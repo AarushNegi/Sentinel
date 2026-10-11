@@ -8,6 +8,8 @@ import DashboardSidebar from '../components/DashboardSidebar'
 import DashboardHeader from '../components/DashboardHeader'
 import DashboardStatCard from '../components/DashboardStatCard'
 import TeamModeCard from '../components/TeamModeCard'
+import redHacker from '../assets/teams/red-hacker.png'
+import blueAnalyst from '../assets/teams/blue-analyst.png'
 import RecentActivity from '../components/RecentActivity'
 import RecommendedSimulations from '../components/RecommendedSimulations'
 import ThreatFeed, { timeAgo as clockSecondsAgo } from '../components/ThreatFeed'
@@ -146,7 +148,7 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     logout()
-    navigate('/login')
+    navigate('/login', { replace: true })
   }
 
   const openReport = (r) => {
@@ -193,22 +195,24 @@ export default function Dashboard() {
             <TeamModeCard
               team="red"
               title="RED TEAM"
-              tagline="Attack. Simulate. Exploit."
+              tagline="Think like the attacker."
               description="Practice offensive security in a safe, controlled environment."
               chips={['Reconnaissance', 'Exploitation', 'Privilege Escalation']}
               chipIcons={[Search, Terminal, Crosshair]}
               onEnter={() => navigate('/attack-select', { state: { mode: 'red' } })}
-              illustration={<Crosshair size={76} strokeWidth={1.2} className="tmc-glyph" />}
+              cta="Play the adversary"
+              illustration={<img src={redHacker} alt="Red Team hacker character" />}
             />
             <TeamModeCard
               team="blue"
               title="BLUE TEAM"
-              tagline="Detect. Analyze. Defend."
+              tagline="Respond like the SOC."
               description="Investigate alerts, analyze threats, and practice incident response."
               chips={['Monitoring', 'Analysis', 'Response']}
               chipIcons={[Eye, Activity, ShieldCheck]}
               onEnter={() => navigate('/attack-select', { state: { mode: 'blue' } })}
-              illustration={<ShieldCheck size={76} strokeWidth={1.2} className="tmc-glyph" />}
+              cta="Take the console"
+              illustration={<img src={blueAnalyst} alt="Blue Team SOC analyst character" />}
             />
           </section>
 

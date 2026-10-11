@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom'
 import { LandingNetworkBackground } from '../components/LandingNetworkBackground'
 import { MagneticButton } from '../components/MagneticButton'
 import { GlowCard } from '../components/GlowCard'
+import IntroAnimation from '../components/IntroAnimation'
 import { useReveal } from '../hooks/useReveal'
 import {
-  Shield, Swords, Radar, Bell, Search, Trophy, Target, Terminal, Activity, ArrowRight, ChevronRight, Cpu,
+  Shield, Radar, Bell, Search, Trophy, Target, Terminal, Activity, ArrowRight, ChevronRight, Cpu,
 } from 'lucide-react'
 import logo from '../assets/logo.jpeg'
 
@@ -29,8 +30,9 @@ export default function Landing() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
+      <IntroAnimation />
       <LandingNetworkBackground />
-      <div className="pointer-events-none fixed inset-0 z-0 bg-cyber-grid opacity-40" aria-hidden />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-cyber-grid opacity-20" aria-hidden />
       <div className="pointer-events-none fixed inset-0 z-0 hero-bg" aria-hidden />
 
       <Nav navigate={navigate} />
@@ -39,24 +41,17 @@ export default function Landing() {
         <Hero chainStep={chainStep} navigate={navigate} />
         <HowItWorks />
         <Features alertPulse={alertPulse} />
-        <RedVsBlue navigate={navigate} />
         <FinalCTA navigate={navigate} />
         <Footer />
       </main>
-
-      <div
-        className="pointer-events-none fixed inset-x-0 top-0 z-[5] h-24 opacity-[0.06] animate-scanline"
-        style={{ background: 'linear-gradient(to bottom, transparent, rgba(59,130,246,0.9), transparent)' }}
-        aria-hidden
-      />
     </div>
   )
 }
 
 function Nav({ navigate }) {
   return (
-    <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-      <a href="#" className="group flex items-center gap-2.5">
+    <header className="relative z-20 mx-auto grid max-w-[1320px] grid-cols-[auto_1fr_auto] items-center gap-6 px-6 py-6 sm:px-8 lg:px-10">
+      <a href="#" className="group flex items-center gap-2.5 justify-self-start">
         <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-md">
         <img src={logo} alt="Sentinel logo" className="h-full w-full object-cover" />
         </div>
@@ -64,13 +59,12 @@ function Nav({ navigate }) {
           Sentinel<span className="text-[color:var(--red-team-glow)]">/</span><span className="text-[color:var(--blue-team-glow)]">SOC</span>
         </span>
       </a>
-      <nav className="hidden items-center gap-8 font-mono text-xs uppercase tracking-widest text-muted-foreground md:flex">
+      <nav className="hidden items-center justify-center gap-9 font-mono text-xs uppercase tracking-widest text-muted-foreground md:flex">
         <a href="#how" className="hover:text-foreground transition-colors">How it works</a>
         <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-        <a href="#teams" className="hover:text-foreground transition-colors">Red / Blue</a>
         <a href="#start" className="hover:text-foreground transition-colors">Get access</a>
       </nav>
-      <MagneticButton variant="ghost" className="!py-2 !px-4 text-[11px]" onClick={() => navigate('/login')}>
+      <MagneticButton variant="ghost" className="!py-2 !px-4 text-[11px] justify-self-end" onClick={() => navigate('/login')}>
         Sign in
       </MagneticButton>
     </header>
@@ -79,46 +73,46 @@ function Nav({ navigate }) {
 
 function Hero({ chainStep, navigate }) {
   return (
-    <section className="relative mx-auto flex min-h-[92vh] max-w-7xl flex-col items-center justify-center px-6 pt-10 pb-24 text-center">
-      <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-3 py-1 font-mono text-[11px] uppercase tracking-widest text-muted-foreground backdrop-blur">
+    <section className="relative mx-auto flex min-h-[88vh] max-w-[1320px] flex-col items-center justify-center px-6 pt-16 pb-28 text-center sm:px-8 lg:px-10">
+      <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-3 py-1 font-mono text-[11px] uppercase tracking-widest text-muted-foreground backdrop-blur">
         <span className="relative flex h-1.5 w-1.5">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[color:var(--terminal)] opacity-75" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[color:var(--terminal)]" />
         </span>
-        Live SOC — 1,284 analysts online
+        Training environment online
       </div>
 
-      <h1 className="max-w-5xl font-sans text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl">
+      <h1 className="max-w-4xl font-sans text-5xl font-semibold leading-[1.1] tracking-tight sm:text-6xl md:text-[4.2rem]">
         Learn <span className="text-glow-red text-[color:var(--red-team-glow)]">offense</span>{' '}and{' '}
         <span className="text-glow-blue text-[color:var(--blue-team-glow)]">defense</span>
         <br />through <span className="gradient-red-blue-text">live simulation.</span>
       </h1>
 
-      <p className="mt-6 max-w-2xl text-balance text-base text-muted-foreground sm:text-lg">
+      <p className="mt-7 max-w-2xl text-balance text-base text-muted-foreground sm:text-lg">
         Sentinel is a hands-on cybersecurity range where students step into a real Security
         Operations Center. Run kill-chain attacks, triage alerts, investigate a SIEM, and race
         the clock to contain incidents — scored in real time.
       </p>
 
-      <div className="mt-16 w-full max-w-3xl rounded-xl border border-border bg-card/60 p-4 backdrop-blur-md">
-        <div className="mb-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+      <div className="mt-16 w-full max-w-4xl rounded-xl border border-border bg-card/60 p-5 backdrop-blur-md sm:p-6">
+        <div className="mb-4 flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
           <div className="flex items-center gap-2">
             <Activity className="h-3 w-3 text-[color:var(--terminal)]" />
             kill_chain.stream
           </div>
           <div className="flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--red-team)]" />
-            attack in progress
+            example simulation
           </div>
         </div>
-        <div className="flex items-center gap-1 overflow-hidden">
+        <div className="flex items-center gap-1.5 overflow-x-auto">
           {killChain.map((step, i) => {
             const active = i === chainStep
             const passed = i < chainStep
             return (
-              <div key={step} className="flex flex-1 items-center gap-1">
+              <div key={step} className="flex flex-1 items-center gap-1.5">
                 <div
-                  className={`flex-1 rounded px-2 py-2 text-center font-mono text-[10px] uppercase tracking-widest transition-all duration-500 ${
+                  className={`min-w-[70px] flex-1 rounded px-2 py-2.5 text-center font-mono text-[10px] uppercase tracking-widest transition-all duration-500 ${
                     active
                       ? 'bg-[color:var(--red-team)]/20 text-[color:var(--red-team-glow)] border-glow-red'
                       : passed
@@ -137,7 +131,7 @@ function Hero({ chainStep, navigate }) {
         </div>
       </div>
 
-      <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+      <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
         <span>MITRE ATT&CK aligned</span>
         <span className="opacity-30">•</span>
         <span>SIEM-grade investigation</span>
@@ -158,9 +152,9 @@ const steps = [
 
 function HowItWorks() {
   return (
-    <section id="how" className="relative mx-auto max-w-7xl px-6 py-32">
+    <section id="how" className="relative mx-auto max-w-[1320px] px-6 py-28 sm:px-8 lg:px-10">
       <SectionHeader eyebrow="Session flow" title="One session. Five stages. Zero fluff." subtitle="Every simulation runs the same loop so muscle memory sticks. Attack. Detect. Respond. Learn." />
-      <ol className="mt-16 grid gap-4 md:grid-cols-5">
+      <ol className="mt-16 grid gap-5 md:grid-cols-5 lg:gap-6">
         {steps.map((s, i) => (
           <li key={s.n} className="reveal-on-scroll" style={{ transitionDelay: `${i * 80}ms` }}>
             <GlowCard className="h-full">
@@ -180,9 +174,9 @@ function HowItWorks() {
 
 function Features({ alertPulse }) {
   return (
-    <section id="features" className="relative mx-auto max-w-7xl px-6 py-32">
+    <section id="features" className="relative mx-auto max-w-[1320px] px-6 py-28 sm:px-8 lg:px-10">
       <SectionHeader eyebrow="Inside the platform" title="The tools a real analyst uses — built for learning." subtitle="Every panel in Sentinel mirrors production SOC tooling, tuned so you can see cause and effect in seconds, not shifts." />
-      <div className="mt-16 grid gap-6 md:grid-cols-6">
+      <div className="mt-16 grid gap-6 md:grid-cols-6 lg:gap-7">
         <div className="reveal-on-scroll md:col-span-4">
           <GlowCard team="red" className="h-full">
             <FeatureLabel icon={Radar} tone="red">Kill Chain Visualizer</FeatureLabel>
@@ -289,61 +283,6 @@ function Leaderboard() {
   )
 }
 
-function RedVsBlue({ navigate }) {
-  return (
-    <section id="teams" className="relative mx-auto max-w-7xl px-6 py-32">
-      <SectionHeader eyebrow="Pick a side. Or both." title="Red Team vs Blue Team." subtitle="Every scenario ships with both playbooks. Learn the attacker's moves, then defend against them from the other seat." />
-      <div className="mt-16 grid gap-6 md:grid-cols-2">
-        <div className="reveal-on-scroll">
-          <GlowCard team="red" className="h-full">
-            <div className="flex items-center justify-between">
-              <FeatureLabel icon={Swords} tone="red">Red Team</FeatureLabel>
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">offense</span>
-            </div>
-            <h3 className="mt-3 text-2xl font-semibold text-[color:var(--red-team-glow)]">Break in. Move quietly. Reach the objective.</h3>
-            <ul className="mt-5 space-y-2 font-mono text-sm text-muted-foreground">
-              <TeamLine tone="red">Phishing &amp; initial access playbooks</TeamLine>
-              <TeamLine tone="red">Living-off-the-land binaries (LOLBAS)</TeamLine>
-              <TeamLine tone="red">Privilege escalation on Windows &amp; Linux</TeamLine>
-              <TeamLine tone="red">C2 profiles, evasion, and cleanup</TeamLine>
-            </ul>
-            <MagneticButton variant="red" className="mt-6 w-full" onClick={() => navigate('register', { state: { mode: 'red' } })}>
-              Enter as Red Team
-            </MagneticButton>
-          </GlowCard>
-        </div>
-        <div className="reveal-on-scroll" style={{ transitionDelay: '100ms' }}>
-          <GlowCard team="blue" className="h-full">
-            <div className="flex items-center justify-between">
-              <FeatureLabel icon={Shield} tone="blue">Blue Team</FeatureLabel>
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">defense</span>
-            </div>
-            <h3 className="mt-3 text-2xl font-semibold text-[color:var(--blue-team-glow)]">Detect early. Contain fast. Write the report.</h3>
-            <ul className="mt-5 space-y-2 font-mono text-sm text-muted-foreground">
-              <TeamLine tone="blue">SIEM triage &amp; detection engineering</TeamLine>
-              <TeamLine tone="blue">Endpoint &amp; network forensics</TeamLine>
-              <TeamLine tone="blue">Threat hunting with hypothesis loops</TeamLine>
-              <TeamLine tone="blue">Incident response &amp; executive briefing</TeamLine>
-            </ul>
-            <MagneticButton variant="blue" className="mt-6 w-full" onClick={() => navigate('register', { state: { mode: 'blue' } })}>
-              Enter as Blue Team
-            </MagneticButton>
-          </GlowCard>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function TeamLine({ tone, children }) {
-  return (
-    <li className="flex items-start gap-2">
-      <span className={`mt-2 h-1 w-3 shrink-0 rounded-full ${tone === 'red' ? 'bg-[color:var(--red-team)]' : 'bg-[color:var(--blue-team)]'}`} />
-      <span>{children}</span>
-    </li>
-  )
-}
-
 function FeatureLabel({ icon: Icon, tone, children }) {
   return (
     <div className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest ${tone === 'red' ? 'border-[color:var(--red-team)]/40 text-[color:var(--red-team-glow)] bg-[color:var(--red-team)]/10' : 'border-[color:var(--blue-team)]/40 text-[color:var(--blue-team-glow)] bg-[color:var(--blue-team)]/10'}`}>
@@ -369,9 +308,9 @@ function SectionHeader({ eyebrow, title, subtitle }) {
 
 function FinalCTA({ navigate }) {
   return (
-    <section id="start" className="relative mx-auto max-w-7xl px-6 py-32">
+    <section id="start" className="relative mx-auto max-w-[1320px] px-6 py-28 sm:px-8 lg:px-10">
       <div className="reveal-on-scroll relative overflow-hidden rounded-2xl border border-border bg-card/60 p-10 backdrop-blur-md sm:p-16">
-        <div className="pointer-events-none absolute inset-0 opacity-40" style={{ background: 'radial-gradient(600px circle at 20% 20%, rgba(239,68,68,0.25), transparent 50%), radial-gradient(600px circle at 80% 80%, rgba(59,130,246,0.25), transparent 50%)' }} aria-hidden />
+        <div className="pointer-events-none absolute inset-0 opacity-30" style={{ background: 'radial-gradient(600px circle at 20% 20%, rgba(239,68,68,0.25), transparent 50%), radial-gradient(600px circle at 80% 80%, rgba(59,130,246,0.25), transparent 50%)' }} aria-hidden />
         <div className="relative flex flex-col items-center text-center">
           <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">sentinel.range/start</div>
           <h2 className="max-w-3xl text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
@@ -383,9 +322,8 @@ function FinalCTA({ navigate }) {
               Create free account
               <ArrowRight className="h-4 w-4" />
             </MagneticButton>
-          
           </div>
-          <div className="mt-6 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">trusted by learners at 200+ universities &amp; bootcamps</div>
+          <div className="mt-6 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">built for classrooms, bootcamps, and self-paced learners</div>
         </div>
       </div>
     </section>
@@ -394,8 +332,8 @@ function FinalCTA({ navigate }) {
 
 function Footer() {
   return (
-    <footer className="relative mx-auto max-w-7xl px-6 pb-12">
-      <div className="flex flex-col items-start justify-between gap-6 border-t border-border pt-8 font-mono text-[11px] uppercase tracking-widest text-muted-foreground sm:flex-row sm:items-center">
+    <footer className="relative mx-auto max-w-[1320px] px-6 pb-16 sm:px-8 lg:px-10">
+      <div className="flex flex-col items-start justify-between gap-6 border-t border-border pt-10 font-mono text-[11px] uppercase tracking-widest text-muted-foreground sm:flex-row sm:items-center">
         <div className="flex items-center gap-2">
           <Shield className="h-3.5 w-3.5 text-[color:var(--blue-team-glow)]" />
           Sentinel — Live SOC Range · v0.9 preview

@@ -1,0 +1,137 @@
+/* components/EmailComposerStage.css */
+
+.ec-composer {
+  margin-top: 22px;
+  border: 1px solid #292c36;
+  background: #090a10;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.ec-field {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  padding: 12px 17px;
+  border-bottom: 1px solid #20232b;
+  gap: 10px;
+}
+
+.ec-field span {
+  color: #656b78;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.ec-field strong {
+  font-size: 12.5px;
+  color: #c9ccd3;
+}
+
+.ec-field input {
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: white;
+  font: inherit;
+  font-size: 13px;
+}
+.ec-field input::placeholder { color: #4a4f5c; }
+
+.ec-body-field {
+  padding: 12px 17px;
+  border-bottom: 1px solid #20232b;
+}
+.ec-body-field span {
+  display: block;
+  color: #656b78;
+  font-size: 9px;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.ec-body-field textarea {
+  width: 100%;
+  background: #0b0c13;
+  border: 1px solid #22252e;
+  border-radius: 6px;
+  color: #e3e5ea;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 10px 12px;
+  resize: vertical;
+  outline: none;
+}
+.ec-body-field textarea:focus { border-color: #3d414d; }
+.ec-body-field textarea::placeholder { color: #4a4f5c; }
+
+.ec-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.rp-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 1px solid #3d414d;
+  color: #c9ccd3;
+  padding: 11px 18px;
+  border-radius: 7px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.rp-secondary-btn:hover { border-color: #656b78; color: #fff; }
+
+.rp-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.rp-primary-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.ec-missing-hint {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: #656b78;
+}
+
+.ec-suggestion-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  border: 1px solid rgba(242,201,76,0.3);
+  background: rgba(242,201,76,0.06);
+  border-radius: 8px;
+  padding: 11px 14px;
+  color: #f2c94c;
+  font-size: 12.5px;
+}
+.ec-suggestion-banner span { flex: 1; color: #d9c98a; }
+.ec-suggestion-banner button {
+  background: #f2c94c;
+  color: #1a1600;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-weight: 700;
+  font-size: 11.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ec-suggestion-dismiss {
+  background: transparent !important;
+  color: #9da1ab !important;
+  font-weight: 500 !important;
+}

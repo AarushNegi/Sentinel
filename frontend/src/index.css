@@ -1,4 +1,12 @@
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0a0a0f; color: #fff; font-family: 'Inter', system-ui, sans-serif; }
-a { text-decoration: none; }
-button { font-family: inherit; }
+/* Scoped into Tailwind's "base" layer so it still resets every element by
+   default, but no longer wins over Tailwind utility classes (py-*, p-*, m-*,
+   etc.) on the Landing page. An un-layered rule here would otherwise always
+   beat a layered Tailwind utility regardless of source order or specificity
+   per the CSS Cascade Layers spec — which was silently zeroing out every
+   margin/padding utility on the page. */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0f; color: #fff; font-family: 'Inter', system-ui, sans-serif; }
+  a { text-decoration: none; }
+  button { font-family: inherit; }
+}

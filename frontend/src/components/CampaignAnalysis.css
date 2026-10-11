@@ -1,0 +1,62 @@
+/* components/CampaignAnalysis.css */
+
+.ca-wrap {
+  margin-top: 18px;
+  border: 1px solid #292c36;
+  background: #0b0c13;
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.ca-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #e3e5ea;
+}
+
+.ca-badge {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #656b78;
+  border: 1px solid #3d414d;
+  border-radius: 99px;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
+.ca-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.ca-metric-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #9da1ab;
+  margin-bottom: 4px;
+}
+.ca-metric-top strong { color: #e3e5ea; font-variant-numeric: tabular-nums; }
+
+.ca-bar {
+  height: 6px;
+  border-radius: 99px;
+  background: #1a1c24;
+  overflow: hidden;
+}
+
+.ca-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.35s ease;
+}
+.ca-blue   { background: #3b82f6; }
+.ca-green  { background: #53d88a; }
+.ca-yellow { background: #f2c94c; }
+.ca-red    { background: #ff4545; }

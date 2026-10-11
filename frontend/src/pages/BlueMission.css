@@ -1,0 +1,132 @@
+/* =========================================================
+   BLUE TEAM MISSION — one screen, one task.
+   Layered on BlueGuided.css (tokens, buttons, modals, evidence cards).
+   ========================================================= */
+
+/* ---------- top bar additions ---------------------------------------- */
+.bg-incident-title { font-size: 16px; }
+.bg-threat { padding: 3px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; border: 1px solid var(--line); }
+.bg-threat-low { color: var(--muted); }
+.bg-threat-mid { color: #f4d776; border-color: #7a6a2e; background: rgba(122, 106, 46, 0.14); }
+.bg-threat-high { color: #ff9d9d; border-color: #a14b55; background: rgba(161, 75, 85, 0.16); animation: bgpulse 2.4s ease-in-out infinite; }
+.bg-threat-calm { color: var(--good); border-color: #2f8a64; background: rgba(47, 138, 100, 0.14); }
+@keyframes bgpulse { 50% { box-shadow: 0 0 0 4px rgba(255, 140, 140, 0.12); } }
+
+/* ---------- the mission screen --------------------------------------- */
+.bg-stage { display: block; max-width: 880px; margin: 0 auto; padding: 28px 24px 0; }
+.bg-screen { display: grid; gap: 14px; }
+.bg-progress { color: var(--accent); font-size: 14px; font-weight: 700; }
+.bg-bar-thin { height: 4px; margin-top: -6px; }
+.bg-title { font-size: 34px; line-height: 1.15; font-weight: 800; }
+.bg-objective { font-size: 18px; color: #c9d3e4; max-width: 60ch; }
+.bg-activity { display: grid; gap: 16px; margin-top: 6px; animation: bgrise 0.25s ease-out; }
+@keyframes bgrise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.bg-footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 14px; margin-top: 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+.bg-footer-left, .bg-footer-right { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.bg-hint-wrap { position: relative; }
+.bg-hint-panel { display: grid; gap: 8px; margin-top: 10px; padding: 14px 16px; width: min(520px, calc(100vw - 48px)); border: 1px solid #28507f; border-radius: 12px; background: #0d1a2e; }
+.bg-hint { padding: 8px 12px; border-left: 3px solid var(--accent); background: rgba(78, 156, 255, 0.08); }
+.bg-done-card, .bg-notification, .bg-inspector, .bg-action-card, .bg-found {
+  display: grid; gap: 12px; align-content: start; padding: 20px 22px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel);
+}
+.bg-notification { border-color: #2f5f9e; animation: bgslide 0.35s ease-out; }
+@keyframes bgslide { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+.bg-notification h2, .bg-inspector h2, .bg-action-card h2 { font-size: 22px; line-height: 1.3; }
+.bg-alert-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.bg-badge { flex: none; padding: 2px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.bg-sev-low { background: #12301f; color: #7ee8b5; }
+.bg-sev-medium { background: #3a3210; color: #f4d776; }
+.bg-sev-high { background: #432810; color: #ffb877; }
+.bg-sev-critical { background: #4a1818; color: #ff9d9d; }
+.bg-meta { display: flex; flex-wrap: wrap; gap: 4px 18px; color: var(--muted); font-size: 14px; }
+.bg-meta strong { color: var(--text); }
+.bg-detail { padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(78, 156, 255, 0.08); }
+.bg-big-text { font-size: 22px; font-weight: 700; }
+.bg-callout-line { padding: 10px 14px; border: 1px solid var(--accent); border-radius: 10px; background: var(--accent-soft); }
+.bg-nudge { padding: 10px 14px; border: 1px dashed #34486a; border-radius: 10px; color: var(--muted); }
+.bg-verdict { display: grid; gap: 6px; padding-top: 6px; border-top: 1px solid var(--line); }
+.bg-analysis { display: grid; gap: 8px; }
+.bg-finding { padding: 12px 16px; border-left: 3px solid var(--accent); background: rgba(78, 156, 255, 0.08); font-size: 17px; }
+.bg-found { padding: 14px 16px; background: #0b121e; }
+.bg-compare small { display: block; color: var(--muted); word-break: break-all; }
+.bg-compare-2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.bg-compare .reveal { border-color: var(--warn); animation: bgrise 0.3s ease-out; }
+
+/* ---------- the email (light, like a real mail client) --------------- */
+.bg-click { padding: 2px 6px; border: 1px dashed #5b7fb3; border-radius: 6px; background: rgba(26, 99, 214, 0.1); color: #1a4fa8; font: inherit; font-weight: 700; cursor: pointer; text-align: left; }
+.bg-click:hover, .bg-click.active { background: rgba(26, 99, 214, 0.22); }
+.bg-attach-static { cursor: default; }
+
+/* ---------- events timeline ----------------------------------------- */
+.bg-events { display: grid; gap: 0; margin: 0; padding: 0 0 0 10px; list-style: none; border-left: 2px solid var(--line); }
+.bg-event { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0 10px 14px; }
+.bg-event small { display: block; color: var(--muted); }
+.bg-event-email { background: rgba(240, 199, 94, 0.07); border-radius: 8px; }
+.bg-event-detail { display: grid; gap: 8px; margin-top: 8px; padding: 12px 14px; border-radius: 10px; background: #0b121e; }
+.bg-rowbtn { padding: 0; border: 0; background: none; color: #8fc2ff; font: inherit; font-weight: 600; text-align: left; text-decoration: underline; cursor: pointer; }
+
+/* ---------- decisions ------------------------------------------------ */
+.bg-choices { display: grid; gap: 10px; margin: 0; padding: 0; border: 0; }
+.bg-choices legend { margin-bottom: 8px; font-size: 18px; font-weight: 700; }
+.bg-choice { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: #0b121e; cursor: pointer; }
+.bg-choice.on { border-color: var(--accent); background: var(--accent-soft); }
+.bg-choice input { margin-top: 5px; width: 18px; height: 18px; }
+.bg-choice span { display: grid; gap: 2px; }
+.bg-choice small { color: var(--muted); font-size: 14px; }
+.bg-action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px; }
+.bg-cards2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 14px; }
+.bg-card { display: grid; gap: 8px; align-content: start; padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+.bg-fieldset { margin: 0; padding: 14px 18px; border: 1px solid var(--line); border-radius: 12px; }
+.bg-fieldset legend { padding: 0 8px; font-weight: 700; }
+.bg-check { display: flex; gap: 10px; align-items: center; padding: 4px 0; }
+.bg-check input { width: 18px; height: 18px; }
+.bg-check small { color: var(--muted); }
+.bg-field { display: grid; gap: 6px; color: var(--muted); font-size: 14px; font-weight: 600; }
+.bg-field select, .bg-field input, .bg-field textarea { min-height: 44px; padding: 8px 12px; border: 1px solid #34486a; border-radius: 8px; background: #0b121e; color: var(--text); font: inherit; font-size: 15px; }
+.bg-field textarea { min-height: 110px; resize: vertical; }
+
+/* ---------- clue tray ------------------------------------------------ */
+.bg-modal-lg { width: min(760px, 100%); }
+.bg-tabs { display: flex; gap: 8px; }
+.bg-tabs button { min-height: 40px; padding: 4px 16px; border: 1px solid #34486a; border-radius: 999px; background: transparent; color: var(--text); font: inherit; cursor: pointer; }
+.bg-tabs button.on { background: var(--accent-soft); border-color: var(--accent); }
+.bg-clues { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.bg-clue { display: grid; gap: 2px; width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #0b121e; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.bg-clue:hover { border-color: var(--accent); }
+.bg-clue span { color: #c3cee0; font-size: 15px; }
+.bg-clue small { color: var(--muted); }
+.bg-live-timeline { display: grid; gap: 8px; margin: 0; padding-left: 20px; }
+.bg-live-timeline small { color: var(--muted); margin-right: 6px; }
+.bg-live-timeline .kind-attacker { color: #ff9d9d; }
+
+/* ---------- debrief -------------------------------------------------- */
+.bg-debrief { display: grid; gap: 16px; animation: bgrise 0.3s ease-out; }
+.bg-final { display: flex; gap: 22px; align-items: center; padding: 24px 26px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+.bg-final.ok { border-color: #2f8a64; background: rgba(47, 138, 100, 0.1); }
+.bg-final.gap { border-color: #a14b55; background: rgba(161, 75, 85, 0.1); }
+.bg-rank { display: grid; place-items: center; flex: none; width: 84px; height: 84px; border-radius: 50%; border: 3px solid var(--accent); font-size: 40px; font-weight: 800; }
+.bg-score strong { font-size: 40px; }
+.bg-bars { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.bg-bars li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
+.bg-bars li small { grid-column: 1 / -1; }
+.bg-bar { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: #172236; overflow: hidden; }
+.bg-bar i { display: block; height: 100%; background: var(--accent); transition: width 0.4s ease; }
+.bg-mentor-note { padding: 12px 16px; border-left: 3px solid var(--good); background: rgba(79, 214, 160, 0.07); }
+
+/* ---------- responsive ----------------------------------------------- */
+@media (max-width: 760px) {
+  .bg-topbar { padding: 12px 16px; }
+  .bg-banner { margin-left: 16px; margin-right: 16px; }
+  .bg-stage { padding: 20px 16px 0; }
+  .bg-title { font-size: 26px; }
+  .bg-objective { font-size: 16px; }
+  .bg-final { flex-direction: column; text-align: center; }
+  .bg-footer-right { width: 100%; }
+  .bg-footer-right .bg-big { width: 100%; }
+  .bg-toast { right: 12px; bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bg-spinner, .bg-threat-high { animation: none; }
+  .bg-activity, .bg-notification, .bg-debrief, .bg-compare .reveal { animation: none; }
+  .bg-btn, .bg-bar i { transition: none; }
+}

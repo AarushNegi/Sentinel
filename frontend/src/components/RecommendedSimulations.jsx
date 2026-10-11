@@ -7,9 +7,9 @@ import './RecommendedSimulations.css'
 
 const ITEMS = [
   { id: 'phishing',    title: 'Phishing Attack Simulation', team: 'Red Team',  level: 'Beginner',     icon: Mail,  mode: 'red',  attack: 'phishing' },
-  { id: 'soc',         title: 'SOC Alert Analysis',         team: 'Blue Team', level: 'Intermediate', icon: Shield, mode: 'blue', attack: null },
+  { id: 'soc',         title: 'SOC Alert Analysis',         team: 'Blue Team', level: 'Intermediate', icon: Shield, mode: 'blue', attack: null, comingSoon: true },
   { id: 'ransomware',  title: 'Ransomware Investigation',   team: 'Blue Team', level: 'Intermediate', icon: Bug,   mode: 'blue', attack: 'ransomware' },
-  { id: 'webapp',      title: 'Web Application Attack',     team: 'Red Team',  level: 'Advanced',     icon: Globe, mode: 'red',  attack: null },
+  { id: 'webapp',      title: 'Web Application Attack',     team: 'Red Team',  level: 'Advanced',     icon: Globe, mode: 'red',  attack: null, comingSoon: true },
 ]
 
 export default function RecommendedSimulations({ query = '' }) {
@@ -18,7 +18,9 @@ export default function RecommendedSimulations({ query = '' }) {
   const items = q ? ITEMS.filter(i => i.title.toLowerCase().includes(q)) : ITEMS
 
   const open = (item) => {
-    if (item.attack) {
+    if (item.comingSoon) {
+      navigate(`/coming-soon/${item.id}`)
+    } else if (item.attack) {
       navigate('/guide', { state: { mode: item.mode, attack: item.attack } })
     } else {
       navigate('/attack-select', { state: { mode: item.mode } })

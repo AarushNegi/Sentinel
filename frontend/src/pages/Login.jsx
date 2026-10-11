@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { loginUser, guestLogin } from '../services/api'
@@ -10,6 +10,7 @@ import {
   Shield, Mail, Lock, Eye, EyeOff, ArrowRight, User, AlertCircle,
   Info, ShieldCheck, Crosshair, Globe, Radio,
 } from 'lucide-react'
+import { introPending } from '../components/IntroAnimation'
 import './Login.css'
 
 const EXTRA_THREAT_ROWS = [
@@ -25,6 +26,11 @@ const EXPANDED_THREAT_ROWS = [...DEFAULT_THREAT_ROWS, ...EXTRA_THREAT_ROWS]
 export default function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
+  // A first visit straight to /login goes through the homepage intro first.
+  const [toIntro] = useState(introPending)
+  useEffect(() => {
+    if (toIntro) navigate('/', { replace: true })
+  }, [toIntro, navigate])
 
   const [form, setForm]       = useState({ email: '', password: '' })
   const [showPw, setShowPw]   = useState(false)
@@ -50,7 +56,7 @@ export default function Login() {
       const res = await loginUser(form)
       login(res.data.token, res.data.user)
       if (remember) localStorage.setItem('savedEmail', form.email)
-      navigate('/dashboard')
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Try again.')
     } finally {
@@ -63,13 +69,15 @@ export default function Login() {
     try {
       const res = await guestLogin()
       login(res.data.token, res.data.user)
-      navigate('/dashboard')
+      navigate('/dashboard', { replace: true })
     } catch {
       setError('Cannot connect to server.')
     } finally {
       setLoading(false)
     }
   }
+
+  if (toIntro) return null
 
   return (
     <div className="lg-page">

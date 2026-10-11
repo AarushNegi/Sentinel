@@ -1,6 +1,8 @@
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { TRAINING_PASSWORD } from '../data/phishingSimulation'
 import './Outcome.css'
+import BlueReportDetails from '../components/BlueReportDetails'
 
 /*
  * =========================================================
@@ -431,6 +433,10 @@ export default function Outcome() {
     report.result === 'completed' ||
     report.result === 'SUCCESS'
 
+  const isPartial =
+    !isSuccess &&
+    report.result === 'partial'
+
   const target =
     report.target || {}
 
@@ -472,12 +478,20 @@ export default function Outcome() {
             className={`result-badge ${
               isSuccess
                 ? 'success'
+                : isPartial
+                ? 'partial'
                 : 'failed'
             }`}
           >
 
-            {isSuccess
+            {isBlue && report.evaluation
+              ? (isSuccess
+                ? '✓ Incident Contained'
+                : '✕ Incident Not Contained')
+              : isSuccess
               ? '✓ Operation Successful'
+              : isPartial
+              ? '⚠ Partial Completion'
               : '✕ Simulation Failed'}
 
           </div>
@@ -632,9 +646,16 @@ export default function Outcome() {
         )}
 
 
+        {isBlue && report.evaluation && (
+          <BlueReportDetails report={report} />
+        )}
+
+
         {/* =================================================
             STAGES
         ================================================== */}
+
+        {!(isBlue && report.score_breakdown) && (
 
         <section className="outcome-section">
 
@@ -722,6 +743,8 @@ export default function Outcome() {
 
         </section>
 
+        )}
+
 
         {/* =================================================
             RED PHISHING — CREDENTIAL CAPTURE
@@ -777,8 +800,8 @@ export default function Outcome() {
                   {
                     report
                       .credential_capture
-                      .password
-                      ? '••••••••••••'
+                      .credential_submission
+                      ? TRAINING_PASSWORD
                       : '—'
                   }
 
@@ -812,10 +835,86 @@ export default function Outcome() {
             <p className="simulation-note">
 
               This credential capture occurred entirely inside
-              Sentinel's fictional training environment.
+              Sentinel's fictional training environment. No real
+              password was ever collected or stored — only a fixed
+              training account is tracked.
 
             </p>
 
+          </section>
+
+        )}
+
+
+        {/* =================================================
+            RED PHISHING — CAMPAIGN ANALYSIS
+        ================================================== */}
+
+        {isRed && report.campaign_analysis && (
+
+          <section className="outcome-section">
+            <h2>Campaign Analysis</h2>
+            <div className="summary-grid">
+              {['relevance', 'credibility', 'urgency', 'suspicion'].map((key) => (
+                <div className="summary-card" key={key}>
+                  <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                  <strong>{report.campaign_analysis[key] ?? 0}%</strong>
+                </div>
+              ))}
+            </div>
+            {report.campaign && (
+              <div className="target-report-card" style={{ marginTop: 16 }}>
+                <div className="target-details">
+                  <div><span>Sender</span><strong>{report.campaign.sender || '—'}</strong></div>
+                  <div><span>Subject</span><strong>{report.campaign.subject || '—'}</strong></div>
+                  <div><span>Call to Action</span><strong>{report.campaign.cta || '—'}</strong></div>
+                  <div><span>Simulated URL</span><strong>{report.campaign.simulatedLink || '—'}</strong></div>
+                </div>
+              </div>
+            )}
+          </section>
+
+        )}
+
+
+        {/* =================================================
+            RED PHISHING — LEARNING OUTCOMES
+        ================================================== */}
+
+        {isRed && report.learning_outcomes?.length > 0 && (
+
+          <section className="outcome-section">
+            <h2>Learning Outcomes</h2>
+            <ul className="stage-list" style={{ listStyle: 'none', padding: 0 }}>
+              {report.learning_outcomes.map((o) => (
+                <li key={o} className="stage-report-card">
+                  <div className="stage-info"><strong>✓ {o}</strong></div>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+        )}
+
+
+        {/* =================================================
+            RED PHISHING — DEFENDER INDICATORS
+        ================================================== */}
+
+        {isRed && report.defender_indicators?.length > 0 && (
+
+          <section className="outcome-section">
+            <h2>Defender Indicators</h2>
+            <ul className="stage-list" style={{ listStyle: 'none', padding: 0 }}>
+              {report.defender_indicators.map((ind) => (
+                <li key={ind.type || ind.label} className="stage-report-card">
+                  <div className="stage-info">
+                    <strong>{ind.label}</strong>
+                    <span>{ind.detail}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </section>
 
         )}

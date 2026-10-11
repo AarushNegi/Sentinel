@@ -1,0 +1,222 @@
+/* components/TargetIntelStage.css */
+
+.ti-platform-grid {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ti-platform-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  border: 1px solid #292c36;
+  background: #0b0c13;
+  border-radius: 10px;
+  padding: 18px;
+  color: #c9ccd3;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.ti-platform-card:hover { border-color: #ff4545; transform: translateY(-2px); }
+.ti-platform-card svg { color: #ff4545; }
+.ti-platform-card strong { font-size: 14px; color: #e3e5ea; }
+.ti-platform-card span { font-size: 12px; color: #9da1ab; line-height: 1.5; }
+
+.ti-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  border: 1px solid #292c36;
+  background: #0b0c13;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #656b78;
+}
+.ti-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e3e5ea;
+  font: inherit;
+  font-size: 14px;
+}
+.ti-search input::placeholder { color: #4a4f5c; }
+
+.ti-searching-log {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ti-searching-line {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: #9da1ab;
+  animation: ti-reveal 0.25s ease both;
+}
+.ti-spin { color: #ff4545; animation: ti-spin-rotate 1s linear infinite; }
+@keyframes ti-spin-rotate { to { transform: rotate(360deg); } }
+
+.ti-sections {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ti-section {
+  border: 1px solid #292c36;
+  background: #0b0c13;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.ti-section.open { border-color: #3d414d; }
+
+.ti-section-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: transparent;
+  border: none;
+  color: #e3e5ea;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 13px 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.ti-section-icon { color: #656b78; flex-shrink: 0; }
+.ti-check { color: #53d88a; flex-shrink: 0; }
+
+.ti-chevron {
+  margin-left: auto;
+  color: #656b78;
+  transition: transform 0.2s;
+}
+.ti-section.open .ti-chevron { transform: rotate(180deg); }
+
+.ti-section-body {
+  padding: 0 16px 16px 16px;
+  animation: ti-reveal 0.2s ease both;
+}
+
+@keyframes ti-reveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Realistic intel mockups ───────────────────────────── */
+
+.ti-mock-dim { color: #656b78; font-size: 11px; }
+
+.ti-mock-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4545, #a855f7);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.ti-mock-avatar.small { width: 34px; height: 34px; font-size: 13px; }
+
+.ti-mock-profile {
+  display: flex;
+  gap: 14px;
+  border: 1px solid #22252e;
+  border-radius: 8px;
+  padding: 14px;
+  background: #08090e;
+}
+.ti-mock-profile-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ti-mock-profile-main strong { font-size: 14px; color: #e3e5ea; }
+.ti-mock-profile-main > span:nth-of-type(1) { font-size: 12px; color: #9da1ab; }
+.ti-mock-profile-main p { font-size: 12px; color: #9da1ab; line-height: 1.6; margin: 8px 0; }
+
+.ti-mock-experience {
+  border-top: 1px solid #22252e;
+  margin-top: 6px;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ti-mock-exp-row { display: flex; flex-direction: column; }
+.ti-mock-exp-row strong { font-size: 12px; color: #c9ccd3; }
+.ti-mock-exp-row span { font-size: 11px; color: #656b78; }
+
+.ti-mock-feed { display: flex; flex-direction: column; gap: 8px; }
+.ti-mock-post {
+  border: 1px solid #22252e;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: #08090e;
+}
+.ti-mock-post-head { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.ti-mock-post-head strong { font-size: 12.5px; color: #e3e5ea; }
+.ti-mock-post-head span { font-size: 10.5px; color: #656b78; }
+.ti-mock-post p { font-size: 12.5px; color: #c9ccd3; margin-bottom: 6px; }
+
+.ti-mock-org {
+  border: 1px solid #22252e;
+  border-radius: 8px;
+  padding: 14px;
+  background: #08090e;
+}
+.ti-mock-org-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.ti-mock-org-logo {
+  width: 38px; height: 38px;
+  border-radius: 9px;
+  background: #1a1c24;
+  border: 1px solid #292c36;
+  color: #ff8888;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.ti-mock-org-head div { display: flex; flex-direction: column; gap: 2px; }
+.ti-mock-org-head strong { font-size: 13.5px; color: #e3e5ea; }
+.ti-mock-org p { font-size: 12.5px; color: #9da1ab; line-height: 1.6; }
+
+.ti-mock-bulletin {
+  border: 1px solid rgba(242,201,76,0.25);
+  background: rgba(242,201,76,0.04);
+  border-radius: 8px;
+  padding: 14px;
+}
+.ti-mock-bulletin-head { display: flex; align-items: center; gap: 9px; margin-bottom: 4px; }
+.ti-mock-badge {
+  font-size: 9px; font-weight: 800; letter-spacing: 0.06em;
+  color: #f2c94c; border: 1px solid rgba(242,201,76,0.4);
+  border-radius: 99px; padding: 2px 8px;
+}
+.ti-mock-bulletin-head strong { font-size: 13px; color: #e3e5ea; }
+.ti-mock-bulletin p { font-size: 12.5px; color: #c9ccd3; line-height: 1.6; margin-top: 8px; }
+
+.ti-mock-contact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #22252e;
+  border-radius: 8px;
+  padding: 14px;
+  background: #08090e;
+}
+.ti-mock-contact > div { display: flex; flex-direction: column; gap: 2px; }
+.ti-mock-contact strong { font-size: 13px; color: #e3e5ea; }
+.ti-mock-contact span { font-size: 11.5px; color: #9da1ab; }

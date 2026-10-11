@@ -1,0 +1,51 @@
+/* pages/ComingSoon.css */
+
+.cs-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: radial-gradient(circle at 50% 30%, var(--cs-glow, rgba(0, 153, 255, 0.12)), transparent 60%), var(--sen-bg-1);
+  color: var(--sen-text, #e6edf5);
+  font-family: Inter, system-ui, sans-serif;
+}
+.cs-red { --cs-accent: var(--sen-red); --cs-glow: rgba(255, 23, 68, 0.12); }
+.cs-blue { --cs-accent: var(--sen-cyan); --cs-glow: rgba(0, 153, 255, 0.12); }
+
+.cs-card {
+  width: min(480px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 32px;
+  text-align: center;
+  background: var(--sen-card);
+  border: 1px solid var(--cs-accent);
+  border-radius: 16px;
+  box-shadow: 0 0 40px var(--cs-glow);
+}
+
+.cs-icon { color: var(--cs-accent); }
+.cs-meta { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cs-accent); }
+.cs-card .cs-sim { margin: 0; font-size: 20px; font-weight: 700; }
+.cs-card .cs-title { margin: 6px 0 0; font-size: 36px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--cs-accent); }
+.cs-text { margin: 0 0 14px; max-width: 340px; font-size: 14px; line-height: 1.6; color: var(--sen-text-dim, #8fa3b8); }
+
+.cs-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border: 1px solid var(--cs-accent);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--cs-accent);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.18s;
+}
+.cs-btn:hover { background: var(--cs-glow); transform: translateY(-2px); }
+.cs-btn:focus-visible { outline: 2px solid var(--cs-accent); outline-offset: 3px; }
